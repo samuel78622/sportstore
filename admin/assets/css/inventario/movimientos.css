@@ -1,0 +1,271 @@
+  * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+  }
+
+  body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+      width: 250px;
+      background: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+  }
+
+  .sidebar-logo {
+      padding: 25px 20px;
+      border-bottom: 1px solid #222;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+  }
+
+  .sidebar-logo span {
+      color: #e44d26;
+  }
+
+  .sidebar-menu {
+      padding: 15px 0;
+      flex: 1;
+  }
+
+  .menu-label {
+      padding: 10px 20px 5px;
+      font-size: 10px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+  }
+
+  .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+  }
+
+  .menu-item:hover,
+  .menu-item.active {
+      color: white;
+      background: #1a1a1a;
+      border-left-color: #e44d26;
+  }
+
+  .menu-item i {
+      width: 18px;
+      text-align: center;
+  }
+
+  .sidebar-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #222;
+  }
+
+  .sidebar-footer a {
+      color: #e44d26;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+  }
+
+  /* ── CONTENIDO ── */
+  .main-content {
+      margin-left: 250px;
+      flex: 1;
+      padding: 30px;
+  }
+
+  .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+  }
+
+  .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #111;
+  }
+
+  /* ── FILTROS ── */
+  .filtros-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 25px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+  }
+
+  .filtros-card h6 {
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 15px;
+      font-size: 14px;
+  }
+
+  .form-control,
+  .form-select {
+      border: 2px solid #eee;
+      border-radius: 8px;
+      padding: 9px 15px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+      border-color: #111;
+      box-shadow: none;
+  }
+
+  .btn-filtrar {
+      background: #111;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.3s;
+  }
+
+  .btn-filtrar:hover {
+      background: #e44d26;
+      color: white;
+  }
+
+  /* ── CARD SECTION ── */
+  .card-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .card-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+  }
+
+  .card-section-header h5 {
+      font-weight: 800;
+      color: #111;
+      font-size: 16px;
+  }
+
+  /* ── BADGES ── */
+  .badge-entrada {
+      background: #d4edda;
+      color: #155724;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+  }
+
+  .badge-salida {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+  }
+
+  /* ── CANTIDAD ── */
+  .cantidad-entrada {
+      color: #27ae60;
+      font-weight: 800;
+  }
+
+  .cantidad-salida {
+      color: #e44d26;
+      font-weight: 800;
+  }
+
+  /* ── MODAL ── */
+  .modal-header {
+      background: #111;
+      color: white;
+      border-radius: 12px 12px 0 0;
+  }
+
+  .modal-title {
+      font-weight: 800;
+  }
+
+  .btn-close {
+      filter: invert(1);
+  }
+
+  .form-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+  }
+
+  .btn-guardar {
+      background: #111;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 25px;
+      font-weight: 700;
+      font-size: 14px;
+      width: 100%;
+      transition: background 0.3s;
+  }
+
+  .btn-guardar:hover {
+      background: #e44d26;
+      color: white;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #bbb;
+  }
+
+  .empty-state i {
+      font-size: 50px;
+      margin-bottom: 15px;
+  }
+
+  .empty-state p {
+      font-size: 15px;
+  }
+
+  @media (max-width: 768px) {
+      .sidebar {
+          display: none;
+      }
+
+      .main-content {
+          margin-left: 0;
+          padding: 15px;
+      }
+  }

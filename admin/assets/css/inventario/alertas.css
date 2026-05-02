@@ -1,0 +1,355 @@
+  * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+  }
+
+  body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+      width: 250px;
+      background: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+  }
+
+  .sidebar-logo {
+      padding: 25px 20px;
+      border-bottom: 1px solid #222;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+  }
+
+  .sidebar-logo span {
+      color: #e44d26;
+  }
+
+  .sidebar-menu {
+      padding: 15px 0;
+      flex: 1;
+  }
+
+  .menu-label {
+      padding: 10px 20px 5px;
+      font-size: 10px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+  }
+
+  .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+  }
+
+  .menu-item:hover,
+  .menu-item.active {
+      color: white;
+      background: #1a1a1a;
+      border-left-color: #e44d26;
+  }
+
+  .menu-item i {
+      width: 18px;
+      text-align: center;
+  }
+
+  .sidebar-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #222;
+  }
+
+  .sidebar-footer a {
+      color: #e44d26;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+  }
+
+  /* ── CONTENIDO ── */
+  .main-content {
+      margin-left: 250px;
+      flex: 1;
+      padding: 30px;
+  }
+
+  .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+  }
+
+  .page-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #111;
+  }
+
+  /* ── TARJETAS RESUMEN ── */
+  .alert-card {
+      border-radius: 12px;
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .alert-card-danger {
+      background: linear-gradient(135deg, #e44d26, #c43d1e);
+      color: white;
+  }
+
+  .alert-card-warning {
+      background: linear-gradient(135deg, #f39c12, #d68910);
+      color: white;
+  }
+
+  .alert-card-success {
+      background: linear-gradient(135deg, #27ae60, #1e8449);
+      color: white;
+  }
+
+  .alert-card h3 {
+      font-size: 36px;
+      font-weight: 900;
+      margin: 0;
+  }
+
+  .alert-card p {
+      font-size: 13px;
+      opacity: 0.9;
+      margin: 3px 0 0;
+  }
+
+  .alert-card .card-icon {
+      font-size: 40px;
+      opacity: 0.3;
+  }
+
+  /* ── BANNER ALERTA ── */
+  .banner-alerta {
+      background: #fff3cd;
+      border: 2px solid #f39c12;
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+  }
+
+  .banner-alerta i {
+      font-size: 24px;
+      color: #f39c12;
+  }
+
+  .banner-alerta p {
+      margin: 0;
+      font-size: 14px;
+      color: #856404;
+      font-weight: 600;
+  }
+
+  .banner-alerta small {
+      color: #856404;
+      opacity: 0.8;
+  }
+
+  /* ── CARD SECTION ── */
+  .card-section {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-top: 25px;
+  }
+
+  .card-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+  }
+
+  .card-section-header h5 {
+      font-weight: 800;
+      color: #111;
+      font-size: 16px;
+      margin: 0;
+  }
+
+  /* ── TABLA ── */
+  table {
+      width: 100%;
+  }
+
+  thead th {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #888;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-bottom: 2px solid #f0f0f0;
+  }
+
+  tbody td {
+      padding: 14px 12px;
+      font-size: 14px;
+      border-bottom: 1px solid #f9f9f9;
+      vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+      border-bottom: none;
+  }
+
+  tbody tr:hover {
+      background: #fafafa;
+  }
+
+  /* ── STOCK BAR ── */
+  .stock-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+  }
+
+  .stock-bar {
+      flex: 1;
+      height: 8px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      overflow: hidden;
+      min-width: 80px;
+  }
+
+  .stock-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s;
+  }
+
+  .fill-danger {
+      background: #e44d26;
+  }
+
+  .fill-warning {
+      background: #f39c12;
+  }
+
+  .fill-success {
+      background: #27ae60;
+  }
+
+  /* ── BADGES ── */
+  .stock-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+  }
+
+  .stock-agotado {
+      background: #f8d7da;
+      color: #721c24;
+  }
+
+  .stock-bajo {
+      background: #fff3cd;
+      color: #856404;
+  }
+
+  /* ── BOTÓN REABASTECER ── */
+  .btn-reabastecer {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      border: none;
+      cursor: pointer;
+      background: #111;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      transition: background 0.2s;
+      font-weight: 600;
+  }
+
+  .btn-reabastecer:hover {
+      background: #e44d26;
+      color: white;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #bbb;
+  }
+
+  .empty-state i {
+      font-size: 50px;
+      margin-bottom: 15px;
+  }
+
+  .empty-state p {
+      font-size: 15px;
+  }
+
+  /* ── IMAGEN ── */
+  .producto-img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #f0f0f0;
+  }
+
+  .producto-img-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+  }
+
+  @media (max-width: 768px) {
+      .sidebar {
+          display: none;
+      }
+
+      .main-content {
+          margin-left: 0;
+          padding: 15px;
+      }
+  }

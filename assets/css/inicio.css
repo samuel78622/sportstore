@@ -1,0 +1,81 @@
+/* RESET */
+body {
+    background: #f5f5f5;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* NAVBAR */
+.navbar {
+    background: #111;
+}
+
+.navbar-brand {
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.navbar-brand span {
+    color: #e44d26;
+}
+
+/* HERO */
+.hero {
+    height: 90vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+.hero h1 {
+    font-size: 50px;
+    font-weight: 900;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.btn-main {
+    background: #e44d26;
+    border: none;
+    font-weight: bold;
+    color: white;
+}
+
+.btn-main:hover {
+    background: #c63d1f;
+}
+
+/* PRODUCTOS */
+.producto-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    transition: 0.3s;
+}
+
+.producto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.producto-img {
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* FOOTER */
+footer {
+    background: #111;
+    color: white;
+}

@@ -1,0 +1,308 @@
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+
+ body {
+     font-family: Arial, sans-serif;
+     background: #f4f6f9;
+     display: flex;
+     min-height: 100vh;
+ }
+
+ .sidebar {
+     width: 250px;
+     background: #111;
+     color: white;
+     display: flex;
+     flex-direction: column;
+     position: fixed;
+     height: 100vh;
+     overflow-y: auto;
+     z-index: 100;
+ }
+
+ .sidebar-logo {
+     padding: 25px 20px;
+     border-bottom: 1px solid #222;
+     font-size: 20px;
+     font-weight: 900;
+     letter-spacing: 2px;
+ }
+
+ .sidebar-logo span {
+     color: #e44d26;
+ }
+
+ .sidebar-menu {
+     padding: 15px 0;
+     flex: 1;
+ }
+
+ .menu-label {
+     padding: 10px 20px 5px;
+     font-size: 10px;
+     color: #555;
+     text-transform: uppercase;
+     letter-spacing: 1px;
+ }
+
+ .menu-item {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 12px 20px;
+     color: #aaa;
+     text-decoration: none;
+     font-size: 14px;
+     transition: all 0.2s;
+     border-left: 3px solid transparent;
+ }
+
+ .menu-item:hover,
+ .menu-item.active {
+     color: white;
+     background: #1a1a1a;
+     border-left-color: #e44d26;
+ }
+
+ .menu-item i {
+     width: 18px;
+     text-align: center;
+ }
+
+ .sidebar-footer {
+     padding: 15px 20px;
+     border-top: 1px solid #222;
+ }
+
+ .sidebar-footer a {
+     color: #e44d26;
+     text-decoration: none;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     font-size: 13px;
+ }
+
+ .main-content {
+     margin-left: 250px;
+     flex: 1;
+     padding: 30px;
+ }
+
+ .page-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 25px;
+ }
+
+ .page-header h1 {
+     font-size: 24px;
+     font-weight: 800;
+     color: #111;
+ }
+
+ /* ── CARD ── */
+ .card-section {
+     background: white;
+     border-radius: 12px;
+     padding: 30px;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+     margin-bottom: 20px;
+ }
+
+ .card-section h5 {
+     font-weight: 800;
+     color: #111;
+     font-size: 16px;
+     margin-bottom: 20px;
+     padding-bottom: 10px;
+     border-bottom: 2px solid #f0f0f0;
+ }
+
+ /* ── FORMULARIO ── */
+ .form-label {
+     font-weight: 600;
+     font-size: 13px;
+     color: #333;
+ }
+
+ .form-control,
+ .form-select {
+     border: 2px solid #eee;
+     border-radius: 8px;
+     padding: 11px 15px;
+     font-size: 14px;
+     transition: border-color 0.3s;
+ }
+
+ .form-control:focus,
+ .form-select:focus {
+     border-color: #111;
+     box-shadow: none;
+ }
+
+ /* ── TIPO SELECTOR ── */
+ .tipo-options {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 15px;
+ }
+
+ .tipo-option {
+     border: 2px solid #eee;
+     border-radius: 10px;
+     padding: 20px;
+     cursor: pointer;
+     transition: all 0.2s;
+     text-align: center;
+ }
+
+ .tipo-option:hover {
+     border-color: #111;
+ }
+
+ .tipo-option.selected {
+     border-color: #111;
+     background: #f9f9f9;
+ }
+
+ .tipo-option input[type="radio"] {
+     display: none;
+ }
+
+ .tipo-option .tipo-icon {
+     font-size: 32px;
+     margin-bottom: 8px;
+ }
+
+ .tipo-option .tipo-label {
+     font-weight: 800;
+     color: #111;
+     font-size: 15px;
+ }
+
+ .tipo-option .tipo-desc {
+     font-size: 12px;
+     color: #888;
+     margin-top: 4px;
+ }
+
+ /* ── PREVIEW CUPÓN ── */
+ .cupon-preview {
+     background: linear-gradient(135deg, #111, #333);
+     border-radius: 12px;
+     padding: 25px;
+     color: white;
+     text-align: center;
+     position: relative;
+     overflow: hidden;
+ }
+
+ .cupon-preview::before {
+     content: '';
+     position: absolute;
+     top: -20px;
+     right: -20px;
+     width: 80px;
+     height: 80px;
+     border-radius: 50%;
+     background: rgba(255, 255, 255, 0.05);
+ }
+
+ .cupon-preview::after {
+     content: '';
+     position: absolute;
+     bottom: -30px;
+     left: -20px;
+     width: 100px;
+     height: 100px;
+     border-radius: 50%;
+     background: rgba(255, 255, 255, 0.05);
+ }
+
+ .cupon-preview .preview-label {
+     font-size: 11px;
+     color: rgba(255, 255, 255, 0.6);
+     text-transform: uppercase;
+     letter-spacing: 2px;
+     margin-bottom: 5px;
+ }
+
+ .cupon-preview .preview-codigo {
+     font-size: 22px;
+     font-weight: 900;
+     letter-spacing: 3px;
+     font-family: monospace;
+     color: #e44d26;
+ }
+
+ .cupon-preview .preview-descuento {
+     font-size: 36px;
+     font-weight: 900;
+     margin: 10px 0 5px;
+ }
+
+ .cupon-preview .preview-tipo {
+     font-size: 13px;
+     color: rgba(255, 255, 255, 0.7);
+ }
+
+ .cupon-preview .preview-vence {
+     font-size: 12px;
+     color: rgba(255, 255, 255, 0.5);
+     margin-top: 10px;
+ }
+
+ /* ── BOTONES ── */
+ .btn-guardar {
+     background: #111;
+     color: white;
+     border: none;
+     border-radius: 8px;
+     padding: 12px 30px;
+     font-weight: 700;
+     font-size: 15px;
+     transition: background 0.3s;
+     letter-spacing: 1px;
+ }
+
+ .btn-guardar:hover {
+     background: #e44d26;
+     color: white;
+ }
+
+ .btn-cancelar {
+     background: #f0f0f0;
+     color: #333;
+     border: none;
+     border-radius: 8px;
+     padding: 12px 25px;
+     font-weight: 600;
+     font-size: 14px;
+     text-decoration: none;
+     transition: background 0.3s;
+ }
+
+ .btn-cancelar:hover {
+     background: #ddd;
+     color: #111;
+ }
+
+ @media (max-width: 768px) {
+     .sidebar {
+         display: none;
+     }
+
+     .main-content {
+         margin-left: 0;
+         padding: 15px;
+     }
+
+     .tipo-options {
+         grid-template-columns: 1fr;
+     }
+ }

@@ -1,0 +1,328 @@
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          font-family: Arial, sans-serif;
+          background: #f4f6f9;
+          display: flex;
+          min-height: 100vh;
+      }
+
+      .sidebar {
+          width: 250px;
+          background: #111;
+          color: white;
+          display: flex;
+          flex-direction: column;
+          position: fixed;
+          height: 100vh;
+          overflow-y: auto;
+          z-index: 100;
+      }
+
+      .sidebar-logo {
+          padding: 25px 20px;
+          border-bottom: 1px solid #222;
+          font-size: 20px;
+          font-weight: 900;
+          letter-spacing: 2px;
+      }
+
+      .sidebar-logo span {
+          color: #e44d26;
+      }
+
+      .sidebar-menu {
+          padding: 15px 0;
+          flex: 1;
+      }
+
+      .menu-label {
+          padding: 10px 20px 5px;
+          font-size: 10px;
+          color: #555;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+      }
+
+      .menu-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 20px;
+          color: #aaa;
+          text-decoration: none;
+          font-size: 14px;
+          transition: all 0.2s;
+          border-left: 3px solid transparent;
+      }
+
+      .menu-item:hover,
+      .menu-item.active {
+          color: white;
+          background: #1a1a1a;
+          border-left-color: #e44d26;
+      }
+
+      .menu-item i {
+          width: 18px;
+          text-align: center;
+      }
+
+      .sidebar-footer {
+          padding: 15px 20px;
+          border-top: 1px solid #222;
+      }
+
+      .sidebar-footer a {
+          color: #e44d26;
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+      }
+
+      .main-content {
+          margin-left: 250px;
+          flex: 1;
+          padding: 30px;
+      }
+
+      .page-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 25px;
+      }
+
+      .page-header h1 {
+          font-size: 24px;
+          font-weight: 800;
+          color: #111;
+      }
+
+      /* ── TARJETAS ── */
+      .stat-card {
+          background: white;
+          border-radius: 12px;
+          padding: 20px 25px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .stat-card h3 {
+          font-size: 26px;
+          font-weight: 800;
+          color: #111;
+          margin: 0;
+      }
+
+      .stat-card p {
+          font-size: 13px;
+          color: #888;
+          margin: 3px 0 0;
+      }
+
+      .stat-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+      }
+
+      .icon-activos {
+          background: #d4edda;
+          color: #155724;
+      }
+
+      .icon-vencidos {
+          background: #f8d7da;
+          color: #721c24;
+      }
+
+      .icon-descuento {
+          background: #fff3cd;
+          color: #856404;
+      }
+
+      .icon-usado {
+          background: #cce5ff;
+          color: #004085;
+      }
+
+      /* ── CARD ── */
+      .card-section {
+          background: white;
+          border-radius: 12px;
+          padding: 25px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          margin-top: 25px;
+      }
+
+      .card-section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+      }
+
+      .card-section-header h5 {
+          font-weight: 800;
+          color: #111;
+          font-size: 16px;
+          margin: 0;
+      }
+
+      /* ── CUPÓN BADGE ── */
+      .cupon-codigo {
+          background: #111;
+          color: white;
+          padding: 5px 14px;
+          border-radius: 6px;
+          font-weight: 800;
+          font-size: 13px;
+          letter-spacing: 1px;
+          font-family: monospace;
+      }
+
+      /* ── ESTADO BADGE ── */
+      .estado-badge {
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 700;
+      }
+
+      .estado-Activo {
+          background: #d4edda;
+          color: #155724;
+      }
+
+      .estado-Inactivo {
+          background: #e2e3e5;
+          color: #383d41;
+      }
+
+      .estado-Vencido {
+          background: #f8d7da;
+          color: #721c24;
+      }
+
+      .estado-Agotado {
+          background: #fff3cd;
+          color: #856404;
+      }
+
+      /* ── TIPO BADGE ── */
+      .tipo-badge {
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 700;
+      }
+
+      .tipo-porcentaje {
+          background: #cce5ff;
+          color: #004085;
+      }
+
+      .tipo-monto_fijo {
+          background: #d4edda;
+          color: #155724;
+      }
+
+      /* ── BARRA DE USOS ── */
+      .usos-container {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+      }
+
+      .usos-barra {
+          flex: 1;
+          height: 6px;
+          background: #f0f0f0;
+          border-radius: 3px;
+          overflow: hidden;
+          min-width: 60px;
+      }
+
+      .usos-fill {
+          height: 100%;
+          border-radius: 3px;
+          background: #111;
+      }
+
+      /* ── BOTONES ── */
+      .btn-nuevo {
+          background: #111;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 10px 20px;
+          font-weight: 700;
+          font-size: 14px;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: background 0.3s;
+      }
+
+      .btn-nuevo:hover {
+          background: #e44d26;
+          color: white;
+      }
+
+      .btn-accion {
+          padding: 5px 10px;
+          border-radius: 6px;
+          font-size: 12px;
+          border: none;
+          cursor: pointer;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          transition: opacity 0.2s;
+          font-weight: 600;
+      }
+
+      .btn-accion:hover {
+          opacity: 0.8;
+      }
+
+      .btn-editar {
+          background: #cce5ff;
+          color: #004085;
+      }
+
+      .btn-toggle {
+          background: #fff3cd;
+          color: #856404;
+      }
+
+      .btn-eliminar {
+          background: #f8d7da;
+          color: #721c24;
+      }
+
+      @media (max-width: 768px) {
+          .sidebar {
+              display: none;
+          }
+
+          .main-content {
+              margin-left: 0;
+              padding: 15px;
+          }
+      }
