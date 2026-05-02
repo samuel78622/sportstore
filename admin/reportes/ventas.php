@@ -315,9 +315,24 @@ if (isset($_GET['exportar'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Configuración global de Chart.js para mejor visualización
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        Chart.defaults.plugins.tooltip.titleFont.size = 13;
+        Chart.defaults.plugins.tooltip.bodyFont.size = 12;
+        Chart.defaults.plugins.tooltip.padding = 12;
+        Chart.defaults.plugins.tooltip.titleMarginBottom = 8;
+
         // ── GRÁFICA VENTAS POR MES ──
         const meses = <?= json_encode(array_column($ventas_mes, 'nombre_mes')) ?>;
         const ingresos = <?= json_encode(array_column($ventas_mes, 'ingresos')) ?>;
+
+        // Colores degradados para cada barra
+        const coloresGradiente = [
+            '#FF6B6B', '#FF8E72', '#FFA500', '#FFD93D', '#6BCB77', 
+            '#4D96FF', '#5F78D8', '#9B59B6', '#E74C3C', '#3498DB',
+            '#1ABC9C', '#F39C12'
+        ];
 
         new Chart(document.getElementById('graficaVentas'), {
             type: 'bar',
@@ -326,25 +341,34 @@ if (isset($_GET['exportar'])) {
                 datasets: [{
                     label: 'Ingresos ($)',
                     data: ingresos,
-                    backgroundColor: '#555',
-                    borderColor: '#333',
-                    borderWidth: 1
+                    backgroundColor: ingresos.map((_, i) => coloresGradiente[i % coloresGradiente.length]),
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.parsed.y.toLocaleString('es-CO');
+                            }
+                        }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: '#ddd' },
-                        border: { color: '#999' }
+                        grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false },
+                        ticks: { callback: v => '$' + (v / 1000) + 'k' }
                     },
                     x: {
-                        grid: { display: false },
-                        border: { color: '#999' }
+                        grid: { display: false, drawBorder: false }
                     }
                 }
             }
@@ -354,11 +378,11 @@ if (isset($_GET['exportar'])) {
         const estadosLabels = <?= json_encode(array_column($ordenes_estado, 'estado')) ?>;
         const estadosTotales = <?= json_encode(array_column($ordenes_estado, 'total')) ?>;
         const colores = {
-            'pendiente': '#daa520',
-            'empacado': '#4a90e2',
-            'enviado': '#5cb85c',
-            'entregado': '#17a2b8',
-            'cancelado': '#dc3545'
+            'pendiente': '#FFD93D',
+            'empacado': '#4D96FF',
+            'enviado': '#6BCB77',
+            'entregado': '#1ABC9C',
+            'cancelado': '#FF6B6B'
         };
 
         new Chart(document.getElementById('graficaEstados'), {
@@ -369,13 +393,31 @@ if (isset($_GET['exportar'])) {
                     data: estadosTotales,
                     backgroundColor: estadosLabels.map(e => colores[e] || '#999'),
                     borderColor: '#fff',
-                    borderWidth: 2
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { position: 'bottom' }
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12, weight: 'bold' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
                 },
                 cutout: '60%'
             }
@@ -384,6 +426,11 @@ if (isset($_GET['exportar'])) {
         // ── GRÁFICA PRODUCTOS MÁS VENDIDOS ──
         const productosLabels = <?= json_encode(array_map(fn($p) => substr($p['producto'], 0, 20), $productos_mas_vendidos)) ?>;
         const productosUnidades = <?= json_encode(array_column($productos_mas_vendidos, 'unidades_vendidas')) ?>;
+        
+        const coloresProductos = [
+            '#FF6B6B', '#FF8E72', '#FFA500', '#FFD93D', '#6BCB77',
+            '#4D96FF', '#5F78D8', '#9B59B6', '#E74C3C', '#3498DB'
+        ];
 
         new Chart(document.getElementById('graficaProductos'), {
             type: 'bar',
@@ -392,26 +439,34 @@ if (isset($_GET['exportar'])) {
                 datasets: [{
                     label: 'Unidades vendidas',
                     data: productosUnidades,
-                    backgroundColor: '#6b8cae',
-                    borderColor: '#333',
-                    borderWidth: 1
+                    backgroundColor: productosUnidades.map((_, i) => coloresProductos[i % coloresProductos.length]),
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    borderRadius: 4,
+                    borderSkipped: false
                 }]
             },
             options: {
                 indexAxis: 'y',
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.x + ' unidades';
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: {
                         beginAtZero: true,
-                        grid: { color: '#ddd' },
-                        border: { color: '#999' }
+                        grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false }
                     },
                     y: {
-                        grid: { display: false },
-                        border: { color: '#999' }
+                        grid: { display: false, drawBorder: false }
                     }
                 }
             }
@@ -420,8 +475,11 @@ if (isset($_GET['exportar'])) {
         // ── GRÁFICA CATEGORÍAS MÁS VENDIDAS ──
         const categoriasLabels = <?= json_encode(array_column($categorias_mas_vendidas, 'categoria')) ?>;
         const categoriasUnidades = <?= json_encode(array_column($categorias_mas_vendidas, 'unidades_vendidas')) ?>;
-        const categoriasIngresos = <?= json_encode(array_column($categorias_mas_vendidas, 'ingresos')) ?>;
-        const coloresCategorias = ['#e44d26', '#f39c12', '#3498db', '#27ae60', '#1abc9c', '#9b59b6', '#34495e', '#e67e22'];
+        
+        const coloresCategorias = [
+            '#E74C3C', '#F39C12', '#3498DB', '#27AE60', '#1ABC9C', 
+            '#9B59B6', '#34495E', '#E67E22', '#16A085', '#2980B9'
+        ];
 
         new Chart(document.getElementById('graficaCategorias'), {
             type: 'doughnut',
@@ -429,23 +487,35 @@ if (isset($_GET['exportar'])) {
                 labels: categoriasLabels,
                 datasets: [{
                     data: categoriasUnidades,
-                    backgroundColor: ['#999', '#777', '#555', '#aaa', '#888', '#666', '#bbbbbb', '#888'],
+                    backgroundColor: categoriasLabels.map((_, i) => coloresCategorias[i % coloresCategorias.length]),
                     borderColor: '#fff',
-                    borderWidth: 1
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: true,
                 plugins: {
-                    legend: { position: 'bottom' },
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12, weight: 'bold' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.label + ': ' + context.parsed + ' unidades';
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' unidades (' + percentage + '%)';
                             }
                         }
                     }
-                }
+                },
+                cutout: '50%'
             }
         });
 
