@@ -329,6 +329,172 @@
 
         .main-content {
             margin-left: 0;
+            padding: 12px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .page-header h1 {
+            font-size: 18px;
+        }
+
+        .page-header small {
+            font-size: 12px;
+        }
+
+        /* Tarjetas de estadísticas responsivas */
+        .row.g-4 {
+            gap: 0.75rem !important;
+        }
+
+        .stat-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 15px 12px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card h3 {
+            font-size: 22px;
+        }
+
+        .stat-card p {
+            font-size: 12px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 22px;
+            margin-top: 10px;
+        }
+
+        /* Cards más compactas */
+        .card-section {
             padding: 15px;
+            margin-top: 15px;
+            border-radius: 12px;
+        }
+
+        .card-section-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+        .card-section-header h5 {
+            font-size: 14px;
+        }
+
+        /* Tablas responsivas */
+        table {
+            font-size: 12px;
+        }
+
+        thead th {
+            font-size: 10px;
+            padding: 6px 4px;
+        }
+
+        tbody td {
+            padding: 8px 4px;
+            font-size: 12px;
+        }
+
+        /* Gráficos más pequeños */
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        /* Badgestado más compactos */
+        .badge-estado {
+            font-size: 9px;
+            padding: 4px 8px;
+        }
+
+        /* Barras de progreso */
+        .barra-container {
+            gap: 6px;
+        }
+
+        .barra {
+            height: 6px;
+        }
+
+        /* Botón exportar */
+        .btn-exportar {
+            font-size: 12px;
+            padding: 6px 12px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .col-md-3 {
+            min-width: 100%;
+        }
+
+        .col-md-6,
+        .col-md-7,
+        .col-md-5 {
+            min-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .main-content {
+            padding: 8px;
+        }
+
+        .page-header h1 {
+            font-size: 16px;
+        }
+
+        .stat-card {
+            padding: 12px 8px;
+        }
+
+        .stat-card h3 {
+            font-size: 18px;
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+        }
+
+        .card-section {
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        table {
+            font-size: 11px;
+        }
+
+        thead th {
+            font-size: 9px;
+            padding: 4px 2px;
+        }
+
+        tbody td {
+            padding: 6px 2px;
+        }
+
+        .card-section-header h5 {
+            font-size: 13px;
+        }
+
+        .badge-numero {
+            font-size: 10px;
+            padding: 2px 6px;
+        }
+
+        .variacion {
+            font-size: 10px;
         }
     }

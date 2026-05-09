@@ -45,6 +45,20 @@ function esInventario() {
 }
 
 // ============================================
+// VERIFICAR SI ES CONTADOR
+// ============================================
+function esContador() {
+    return estaLogueado() && $_SESSION['rol'] === 'contador';
+}
+
+// ============================================
+// VERIFICAR SI ES VENDEDOR
+// ============================================
+function esVendedor() {
+    return estaLogueado() && $_SESSION['rol'] === 'vendedor';
+}
+
+// ============================================
 // PROTEGER PÁGINAS — SOLO LOGUEADOS
 // ============================================
 function soloLogueados() {
@@ -79,6 +93,21 @@ function soloAdminOInventario() {
     }
 
     if (!esAdmin() && !esInventario()) {
+        header("Location: /ecommerce/index.php?error=sin_permiso");
+        exit();
+    }
+}
+
+// ============================================
+// PROTEGER PÁGINAS — SOLO ADMIN, INVENTARIO Y CONTADOR
+// ============================================
+function soloStaff() {
+    if (!estaLogueado()) {
+        header("Location: /ecommerce/login.php?error=debes_iniciar_sesion");
+        exit();
+    }
+
+    if (!esAdmin() && !esInventario() && !esContador()) {
         header("Location: /ecommerce/index.php?error=sin_permiso");
         exit();
     }

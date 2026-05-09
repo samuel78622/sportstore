@@ -78,6 +78,10 @@ $ordenes = listarOrdenes('pendiente');
             <a href="reportes/inventario.php" class="menu-item">
                 <i class="fas fa-warehouse"></i> Inventario
             </a>
+
+            <a href="usuarios/index.php" class="menu-item">
+                <i class="fas fa-warehouse"></i> roles y permisos
+            </a>
         </nav>
 
         <div class="sidebar-footer">

@@ -14,7 +14,7 @@ function registrarUsuario($nombre, $email, $password, $telefono = null) {
     $db = conectar();
 
     // Verificar si el email ya existe
-    $stmt = $db->prepare("SELECT id FROM usuarios WHERE email = ?");
+    $stmt = $db->prepare("SELECT id FROM usuarios_roles WHERE email = ?");
     $stmt->execute([$email]);
 
     if ($stmt->fetch()) {
@@ -29,7 +29,7 @@ function registrarUsuario($nombre, $email, $password, $telefono = null) {
 
     // Insertar usuario
     $stmt = $db->prepare("
-        INSERT INTO usuarios (nombre, email, password, telefono, rol)
+        INSERT INTO usuarios_roles (nombre, email, password, telefono, rol)
         VALUES (?, ?, ?, ?, 'cliente')
     ");
     $stmt->execute([$nombre, $email, $passwordHash, $telefono]);
@@ -48,7 +48,7 @@ function loginUsuario($email, $password) {
 
     // Buscar usuario por email
     $stmt = $db->prepare("
-        SELECT * FROM usuarios WHERE email = ? AND activo = 1
+        SELECT * FROM usuarios_roles WHERE email = ? AND activo = 1
     ");
     $stmt->execute([$email]);
     $usuario = $stmt->fetch();
@@ -79,7 +79,7 @@ function obtenerPerfil($usuario_id) {
 
     $stmt = $db->prepare("
         SELECT id, nombre, email, telefono, rol, fecha_registro
-        FROM usuarios
+        FROM usuarios_roles
         WHERE id = ?
     ");
     $stmt->execute([$usuario_id]);
@@ -94,7 +94,7 @@ function actualizarPerfil($usuario_id, $nombre, $email, $telefono) {
 
     // Verificar que el email no lo use otro usuario
     $stmt = $db->prepare("
-        SELECT id FROM usuarios WHERE email = ? AND id != ?
+        SELECT id FROM usuarios_roles WHERE email = ? AND id != ?
     ");
     $stmt->execute([$email, $usuario_id]);
 
@@ -106,7 +106,7 @@ function actualizarPerfil($usuario_id, $nombre, $email, $telefono) {
     }
 
     $stmt = $db->prepare("
-        UPDATE usuarios
+        UPDATE usuarios_roles
         SET nombre = ?, email = ?, telefono = ?
         WHERE id = ?
     ");
@@ -129,7 +129,7 @@ function cambiarPassword($usuario_id, $password_actual, $password_nueva) {
     $db = conectar();
 
     // Obtener contraseña actual
-    $stmt = $db->prepare("SELECT password FROM usuarios WHERE id = ?");
+    $stmt = $db->prepare("SELECT password FROM usuarios_roles WHERE id = ?");
     $stmt->execute([$usuario_id]);
     $usuario = $stmt->fetch();
 
@@ -145,7 +145,7 @@ function cambiarPassword($usuario_id, $password_actual, $password_nueva) {
     $nuevaHash = password_hash($password_nueva, PASSWORD_DEFAULT);
 
     $stmt = $db->prepare("
-        UPDATE usuarios SET password = ? WHERE id = ?
+        UPDATE usuarios_roles SET password = ? WHERE id = ?
     ");
     $stmt->execute([$nuevaHash, $usuario_id]);
 
@@ -202,7 +202,7 @@ function listarClientes() {
 
     $stmt = $db->prepare("
         SELECT id, nombre, email, telefono, rol, activo, fecha_registro
-        FROM usuarios
+        FROM usuarios_roles
         ORDER BY fecha_registro DESC
     ");
     $stmt->execute();
@@ -216,7 +216,7 @@ function toggleUsuario($usuario_id) {
     $db = conectar();
 
     $stmt = $db->prepare("
-        UPDATE usuarios
+        UPDATE usuarios_roles
         SET activo = IF(activo = 1, 0, 1)
         WHERE id = ?
     ");
@@ -225,5 +225,91 @@ function toggleUsuario($usuario_id) {
     return [
         'exito'   => true,
         'mensaje' => 'Estado del usuario actualizado'
+    ];
+}
+
+// ============================================
+// OBTENER UN USUARIO POR ID (ADMIN)
+// ============================================
+function obtenerUsuario($usuario_id) {
+    $db = conectar();
+
+    $stmt = $db->prepare("
+        SELECT id, nombre, email, telefono, rol, activo, fecha_registro
+        FROM usuarios_roles
+        WHERE id = ?
+    ");
+    $stmt->execute([$usuario_id]);
+    return $stmt->fetch();
+}
+
+// ============================================
+// ACTUALIZAR ROL DEL USUARIO (ADMIN)
+// ============================================
+function actualizarRol($usuario_id, $nuevo_rol) {
+    $db = conectar();
+
+    // Roles disponibles
+    $rolesValidos = ['cliente', 'admin', 'inventario', 'contador', 'vendedor'];
+
+    if (!in_array($nuevo_rol, $rolesValidos)) {
+        return [
+            'exito'   => false,
+            'mensaje' => 'Rol no válido'
+        ];
+    }
+
+    $stmt = $db->prepare("
+        UPDATE usuarios_roles
+        SET rol = ?
+        WHERE id = ?
+    ");
+    $stmt->execute([$nuevo_rol, $usuario_id]);
+
+    return [
+        'exito'   => true,
+        'mensaje' => 'Rol actualizado correctamente'
+    ];
+}
+
+// ============================================
+// CREAR USUARIO DESDE ADMIN
+// ============================================
+function crearUsuarioAdmin($nombre, $email, $password, $rol, $telefono = null) {
+    $db = conectar();
+
+    // Verificar si el email ya existe
+    $stmt = $db->prepare("SELECT id FROM usuarios_roles WHERE email = ?");
+    $stmt->execute([$email]);
+
+    if ($stmt->fetch()) {
+        return [
+            'exito'   => false,
+            'mensaje' => 'El correo ya está registrado'
+        ];
+    }
+
+    // Validar rol
+    $rolesValidos = ['cliente', 'admin', 'inventario', 'contador', 'vendedor'];
+    if (!in_array($rol, $rolesValidos)) {
+        return [
+            'exito'   => false,
+            'mensaje' => 'Rol no válido'
+        ];
+    }
+
+    // Encriptar contraseña
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+    // Insertar usuario con rol específico
+    $stmt = $db->prepare("
+        INSERT INTO usuarios_roles (nombre, email, password, telefono, rol, activo)
+        VALUES (?, ?, ?, ?, ?, 1)
+    ");
+    $stmt->execute([$nombre, $email, $passwordHash, $telefono, $rol]);
+
+    return [
+        'exito'   => true,
+        'mensaje' => 'Usuario creado exitosamente con rol: ' . $rol
     ];
 }
