@@ -5,8 +5,11 @@ require_once 'includes/funciones_usuario.php';
 if (estaLogueado()) {
     if (esAdmin()) {
         header("Location: admin/index.php");
-    } else {
+    } elseif (esCliente()) {
         header("Location: index.php");
+    } else {
+        // Redirigir a contador, vendedor, inventario, etc.
+        header("Location: departamentos/dashboard.php");
     }
     exit();
 }
@@ -28,10 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $resultado = loginUsuario($email, $password);
 
         if ($resultado['exito']) {
-            if ($resultado['rol'] === 'admin' || $resultado['rol'] === 'inventario') {
+            if ($resultado['rol'] === 'admin') {
                 header("Location: admin/index.php");
-            } else {
+            } elseif ($resultado['rol'] === 'cliente') {
                 header("Location: index.php");
+            } else {
+                // Redirigir a departamentos (contador, vendedor, inventario, etc.)
+                header("Location: departamentos/dashboard.php");
             }
             exit();
         } else {
