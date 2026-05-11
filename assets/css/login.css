@@ -11,11 +11,13 @@ body {
     align-items: center;
     justify-content: center;
     font-family: 'Arial', sans-serif;
+    padding: 20px;
 }
 
 .login-wrapper {
     display: flex;
-    width: 900px;
+    width: 100%;
+    max-width: 900px;
     min-height: 550px;
     border-radius: 16px;
     overflow: hidden;
@@ -174,14 +176,48 @@ body {
     text-decoration: underline;
 }
 
+/* RESPONSIVE */
 @media (max-width: 768px) {
-    .login-banner {
-        display: none;
+    body {
+        padding: 10px;
     }
 
     .login-wrapper {
         width: 100%;
-        min-height: 100vh;
-        border-radius: 0;
+        min-height: auto;
+        flex-direction: column;
+        border-radius: 8px;
+    }
+
+    .login-banner {
+        display: flex;
+        padding: 30px 20px;
+        min-height: auto;
+    }
+
+    .login-banner .logo {
+        font-size: 28px;
+    }
+
+    .login-banner .icon-sport {
+        font-size: 60px;
+    }
+
+    .login-form {
+        padding: 30px 20px;
+    }
+
+    .login-form h2 {
+        font-size: 22px;
+    }
+
+    .form-control {
+        padding: 10px 12px;
+        font-size: 16px;
+    }
+
+    .btn-login {
+        padding: 11px;
+        font-size: 14px;
     }
 }
