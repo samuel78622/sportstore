@@ -128,7 +128,7 @@ function clientesMasActivos($limite = 10) {
                COUNT(o.id) AS total_ordenes,
                SUM(o.total) AS total_gastado
         FROM ordenes o
-        JOIN usuarios u ON o.usuario_id = u.id
+        JOIN usuarios_roles u ON o.usuario_id = u.id
         WHERE o.estado != 'cancelado'
         GROUP BY u.id
         ORDER BY total_gastado DESC

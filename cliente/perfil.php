@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $telefono = $_POST['telefono'];
 
     $stmt = $conexion->prepare("
-        UPDATE usuarios 
+        UPDATE usuarios_roles 
         SET nombre = ?, email = ?, telefono = ?
         WHERE id = ?
     ");
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // ============================================
 $stmt = $conexion->prepare("
     SELECT nombre, email, telefono 
-    FROM usuarios 
+    FROM usuarios_roles 
     WHERE id = ?
 ");
 $stmt->execute([$usuario_id]);

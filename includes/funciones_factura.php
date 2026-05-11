@@ -20,7 +20,7 @@ function obtenerFacturaPorOrden($orden_id) {
                c.codigo AS cupon_codigo
         FROM facturas f
         JOIN ordenes o ON f.orden_id = o.id
-        JOIN usuarios u ON o.usuario_id = u.id
+        JOIN usuarios_roles u ON o.usuario_id = u.id
         LEFT JOIN cupones c ON o.cupon_id = c.id
         WHERE f.orden_id = ?
     ");
@@ -40,7 +40,7 @@ function obtenerFacturaPorNumero($numero_factura) {
                u.nombre AS cliente, u.email, u.telefono
         FROM facturas f
         JOIN ordenes o ON f.orden_id = o.id
-        JOIN usuarios u ON o.usuario_id = u.id
+        JOIN usuarios_roles u ON o.usuario_id = u.id
         WHERE f.numero_factura = ?
     ");
     $stmt->execute([$numero_factura]);
@@ -58,7 +58,7 @@ function listarFacturas($limite = 50) {
                o.total, o.estado
         FROM facturas f
         JOIN ordenes o ON f.orden_id = o.id
-        JOIN usuarios u ON o.usuario_id = u.id
+        JOIN usuarios_roles u ON o.usuario_id = u.id
         ORDER BY f.fecha DESC
         LIMIT ?
     ");

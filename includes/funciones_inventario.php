@@ -159,7 +159,7 @@ function obtenerMovimientos($variante_id = null, $limite = 50)
         FROM movimientos_inventario m
         JOIN variantes v ON m.variante_id = v.id
         JOIN productos p ON v.producto_id = p.id
-        LEFT JOIN usuarios u ON m.usuario_id = u.id
+        LEFT JOIN usuarios_roles u ON m.usuario_id = u.id
     ";
 
     $params = [];
@@ -191,7 +191,7 @@ function obtenerMovimientosPorFecha($fecha_inicio, $fecha_fin)
         FROM movimientos_inventario m
         JOIN variantes v ON m.variante_id = v.id
         JOIN productos p ON v.producto_id = p.id
-        LEFT JOIN usuarios u ON m.usuario_id = u.id
+        LEFT JOIN usuarios_roles u ON m.usuario_id = u.id
         WHERE DATE(m.fecha) BETWEEN ? AND ?
         ORDER BY m.fecha DESC
     ");

@@ -195,7 +195,7 @@ function obtenerOrden($orden_id) {
         SELECT o.*, u.nombre AS cliente, u.email,
                f.numero_factura
         FROM ordenes o
-        JOIN usuarios u ON o.usuario_id = u.id
+        JOIN usuarios_roles u ON o.usuario_id = u.id
         LEFT JOIN facturas f ON f.orden_id = o.id
         WHERE o.id = ?
     ");
@@ -246,7 +246,7 @@ function listarOrdenes($estado = null) {
     $sql = "
         SELECT o.*, u.nombre AS cliente, f.numero_factura
         FROM ordenes o
-        JOIN usuarios u ON o.usuario_id = u.id
+        JOIN usuarios_roles u ON o.usuario_id = u.id
         LEFT JOIN facturas f ON f.orden_id = o.id
     ";
 
@@ -349,7 +349,7 @@ function estadisticasDashboard() {
 
     // Total de clientes
     $stmt = $db->prepare("
-        SELECT COUNT(*) AS total FROM usuarios WHERE rol = 'cliente'
+        SELECT COUNT(*) AS total FROM usuarios_roles WHERE rol = 'cliente'
     ");
     $stmt->execute();
     $total_clientes = $stmt->fetch()['total'];
