@@ -287,24 +287,6 @@ function estadisticasFacturacion() {
 }
 
 // ============================================
-// OBTENER ITEMS DE UNA ORDEN
-// ============================================
-function obtenerItemsOrden($orden_id) {
-    $db = conectar();
-
-    $stmt = $db->prepare("
-        SELECT d.*, p.nombre, v.talla, v.color
-        FROM detalle_orden d
-        JOIN variantes v ON d.variante_id = v.id
-        JOIN productos p ON v.producto_id = p.id
-        WHERE d.orden_id = ?
-        ORDER BY d.id
-    ");
-    $stmt->execute([$orden_id]);
-    return $stmt->fetchAll();
-}
-
-// ============================================
 // GENERAR PDF FACTURA CON mPDF
 // ============================================
 function generarPDFFactura($orden_id, $descarga = true) {

@@ -2,41 +2,47 @@
 session_start();
 require_once "includes/conexion.php";
 require_once "includes/funciones_producto.php";
+require_once "includes/funciones_carrito.php";
 
 $conexion = conectar();
 
-// Inicializar carrito si no existe
-if (!isset($_SESSION['carrito'])) {
-    $_SESSION['carrito'] = [];
-}
+// Normalizar carrito con el formato de funciones_carrito
+$_SESSION['carrito'] = obtenerCarrito();
 
 // Agregar producto al carrito
 if (isset($_POST['agregar'])) {
-    $id = $_POST['id_producto'];
-    $cantidad = $_POST['cantidad'];
+    $producto_id = intval($_POST['id_producto']);
+    $cantidad = max(1, intval($_POST['cantidad']));
 
-    if (isset($_SESSION['carrito'][$id])) {
-        $_SESSION['carrito'][$id] += $cantidad;
-    } else {
-        $_SESSION['carrito'][$id] = $cantidad;
+    $stmt = $conexion->prepare(
+        "SELECT id FROM variantes
+         WHERE producto_id = ? AND activo = 1 AND stock > 0
+         ORDER BY precio ASC
+         LIMIT 1"
+    );
+    $stmt->execute([$producto_id]);
+    $variante = $stmt->fetch();
+
+    if ($variante) {
+        agregarAlCarrito(intval($variante['id']), $cantidad);
     }
 }
 
 // Eliminar producto
 if (isset($_GET['eliminar'])) {
-    $id = $_GET['eliminar'];
-    unset($_SESSION['carrito'][$id]);
+    $id = intval($_GET['eliminar']);
+    eliminarDelCarrito($id);
 }
 
 // Vaciar carrito
 if (isset($_GET['vaciar'])) {
-    $_SESSION['carrito'] = [];
+    vaciarCarrito();
 }
 
 // Actualizar cantidades
 if (isset($_POST['actualizar'])) {
     foreach ($_POST['cantidades'] as $id => $cantidad) {
-        $_SESSION['carrito'][$id] = $cantidad;
+        actualizarCantidad(intval($id), intval($cantidad));
     }
 }
 
@@ -63,9 +69,9 @@ if (isset($_POST['actualizar'])) {
         <a class="navbar-brand" href="#">SPORT<span>STORE</span></a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <a href="catalogo.php" class="btn btn-outline-light">Catálogo</a>
-            <a href="carrito.php" class="btn btn-outline-light">🛒 Carrito</a>
+            <a href="carrito.php" class="btn btn-outline-light"> Carrito</a>
             <?php if (isset($_SESSION['usuario'])): ?>
-                <span class="text-white">👋 <?= htmlspecialchars($_SESSION['nombre']) ?></span>
+                <span class="text-white"> <?= htmlspecialchars($_SESSION['nombre']) ?></span>
                 <a href="logout.php" class="btn btn-danger">Salir</a>
             <?php else: ?>
                 <a href="login.php" class="btn btn-light">Login</a>
@@ -75,7 +81,7 @@ if (isset($_POST['actualizar'])) {
 
     <div class="carrito-container">
         <div class="carrito-header">
-            <h1>🛒 Carrito de Compras</h1>
+            <h1> Carrito de Compras</h1>
             <a href="index.php" class="btn-regreso">
                 <i class="fas fa-arrow-left"></i> Seguir comprando
             </a>
@@ -98,26 +104,50 @@ if (isset($_POST['actualizar'])) {
                         <?php
                         $total = 0;
 
-                        foreach ($_SESSION['carrito'] as $id => $cantidad) {
+                        foreach ($_SESSION['carrito'] as $id => $item) {
                             $id = (int) $id;
-                            $cantidad = (int) $cantidad;
+                            $cantidad = 0;
+                            $nombre = '';
+                            $precio = 0;
 
-                            $sql = "SELECT id, nombre FROM productos WHERE id = ?";
-                            $resultado = $conexion->prepare($sql);
-                            $resultado->execute([$id]);
-                            $producto = $resultado->fetch();
+                            if (is_array($item) && isset($item['cantidad'])) {
+                                $cantidad = intval($item['cantidad']);
+                                $precio = floatval($item['precio'] ?? 0);
+                                $nombre = $item['nombre'] ?? '';
 
-                            if (!$producto) {
+                                if (!$nombre) {
+                                    $sql = "SELECT p.nombre FROM variantes v JOIN productos p ON v.producto_id = p.id WHERE v.id = ?";
+                                    $resultado = $conexion->prepare($sql);
+                                    $resultado->execute([$id]);
+                                    $producto = $resultado->fetch();
+                                    $nombre = $producto['nombre'] ?? '';
+                                }
+                            } else {
+                                $cantidad = intval($item);
+
+                                $sql = "SELECT id, nombre FROM productos WHERE id = ?";
+                                $resultado = $conexion->prepare($sql);
+                                $resultado->execute([$id]);
+                                $producto = $resultado->fetch();
+
+                                if (!$producto) {
+                                    continue;
+                                }
+
+                                $nombre = $producto['nombre'];
+                                $precio = obtenerPrecioMinimoProducto($id) ?? 0;
+                            }
+
+                            if ($cantidad <= 0) {
                                 continue;
                             }
 
-                            $precio = obtenerPrecioMinimoProducto($id) ?? 0;
                             $subtotal = $precio * $cantidad;
                             $total += $subtotal;
                             ?>
 
                             <tr>
-                                <td><?php echo htmlspecialchars($producto['nombre']); ?></td>
+                                <td><?php echo htmlspecialchars($nombre); ?></td>
                                 <td>$<?php echo number_format($precio, 0, ',', '.'); ?></td>
                                 <td>
                                     <input type="number" name="cantidades[<?php echo $id; ?>]" value="<?php echo $cantidad; ?>"
@@ -125,7 +155,7 @@ if (isset($_POST['actualizar'])) {
                                 </td>
                                 <td>$<?php echo number_format($subtotal, 0, ',', '.'); ?></td>
                                 <td>
-                                    <a href="carrito.php?eliminar=<?php echo $id; ?>" class="btn-eliminar">❌ Eliminar</a>
+                                    <a href="carrito.php?eliminar=<?php echo $id; ?>" class="btn-eliminar"> Eliminar</a>
                                 </td>
                             </tr>
 

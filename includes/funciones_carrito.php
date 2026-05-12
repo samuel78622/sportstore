@@ -15,7 +15,47 @@ if (session_status() === PHP_SESSION_NONE) {
 // OBTENER CARRITO COMPLETO
 // ============================================
 function obtenerCarrito() {
-    return $_SESSION['carrito'] ?? [];
+    if (!isset($_SESSION['carrito'])) {
+        return [];
+    }
+
+    $carrito = &$_SESSION['carrito'];
+    $db = conectar();
+
+    foreach ($carrito as $key => $item) {
+        if (!is_array($item) && is_numeric($item)) {
+            $producto_id = intval($key);
+            $cantidad = intval($item);
+
+            $stmt = $db->prepare(
+                "SELECT v.*, p.nombre, p.imagen_principal
+                 FROM variantes v
+                 JOIN productos p ON v.producto_id = p.id
+                 WHERE v.producto_id = ? AND v.activo = 1 AND v.stock > 0
+                 ORDER BY v.precio ASC
+                 LIMIT 1"
+            );
+            $stmt->execute([$producto_id]);
+            $variante = $stmt->fetch();
+
+            if ($variante) {
+                $carrito[$key] = [
+                    'variante_id'      => $variante['id'],
+                    'nombre'           => $variante['nombre'],
+                    'talla'            => $variante['talla'],
+                    'color'            => $variante['color'],
+                    'precio'           => $variante['precio'],
+                    'imagen'           => $variante['imagen_principal'],
+                    'cantidad'         => $cantidad,
+                    'stock_disponible' => $variante['stock']
+                ];
+            } else {
+                unset($carrito[$key]);
+            }
+        }
+    }
+
+    return $_SESSION['carrito'];
 }
 
 // ============================================
