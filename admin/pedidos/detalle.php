@@ -85,6 +85,9 @@ $estados_info = [
         <a href="index.php" class="menu-item active">
             <i class="fas fa-bag-shopping"></i> Pedidos
         </a>
+         <a href="facturas/index.php" class="menu-item">
+                <i class="fas fa-file-invoice"></i> Facturas
+            </a>
         <a href="../cupones/index.php" class="menu-item">
             <i class="fas fa-tag"></i> Cupones
         </a>
@@ -315,8 +318,8 @@ $estados_info = [
                     </button>
                 </form>
 
-                
-                    href="../../confirmacion.php?orden=<?= $orden['id'] ?>"
+                <a
+                    href="../../cliente/descargar_factura.php?orden_id=<?= $orden['id'] ?>&view=1"
                     target="_blank"
                     class="btn-factura"
                 >

@@ -12,6 +12,7 @@ if (!$id) {
 }
 
 $producto = obtenerProducto($id);
+$imagenes_adicionales = obtenerImagenesProducto($id);
 
 if (!$producto) {
     header("Location: index.php?error=producto_no_encontrado");
@@ -22,6 +23,13 @@ $error   = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty($_POST['eliminar_imagen_id'])) {
+        $imagen_id = intval($_POST['eliminar_imagen_id']);
+        eliminarImagenProducto($imagen_id);
+        header("Location: editar.php?id=" . $id);
+        exit();
+    }
+
     $nombre       = trim($_POST['nombre'] ?? '');
     $descripcion  = trim($_POST['descripcion'] ?? '');
     $categoria_id = $_POST['categoria_id'] ?? '';
@@ -61,8 +69,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($resultado['exito']) {
                 $success = $resultado['mensaje'];
+
+                if (!isset($_FILES['imagenes_adicionales'])) {
+                    $_FILES['imagenes_adicionales'] = ['name' => [], 'type' => [], 'tmp_name' => [], 'error' => [], 'size' => []];
+                }
+
+                foreach ($_FILES['imagenes_adicionales']['name'] as $index => $name) {
+                    if (empty($name)) {
+                        continue;
+                    }
+
+                    $file = [
+                        'name'     => $_FILES['imagenes_adicionales']['name'][$index],
+                        'type'     => $_FILES['imagenes_adicionales']['type'][$index],
+                        'tmp_name' => $_FILES['imagenes_adicionales']['tmp_name'][$index],
+                        'error'    => $_FILES['imagenes_adicionales']['error'][$index],
+                        'size'     => $_FILES['imagenes_adicionales']['size'][$index],
+                    ];
+
+                    $resultado_img = subirImagenProducto($file);
+                    if ($resultado_img['exito']) {
+                        agregarImagenProducto($id, $resultado_img['imagen']);
+                    }
+                }
+
                 // Recargar datos actualizados
                 $producto = obtenerProducto($id);
+                $imagenes_adicionales = obtenerImagenesProducto($id);
             } else {
                 $error = $resultado['mensaje'];
             }
@@ -118,6 +151,9 @@ $categorias = listarCategorias();
         <a href="../pedidos/index.php" class="menu-item">
             <i class="fas fa-bag-shopping"></i> Pedidos
         </a>
+  <a href="../facturas/index.php" class="menu-item">
+                <i class="fas fa-file-invoice"></i> Facturas
+            </a>
         <a href="../cupones/index.php" class="menu-item">
             <i class="fas fa-tag"></i> Cupones
         </a>
@@ -294,6 +330,35 @@ $categorias = listarCategorias();
                         style="display:none"
                         onchange="previewImagen(this)"
                     >
+                </div>
+
+                <?php if (!empty($imagenes_adicionales)): ?>
+                <div class="card-section">
+                    <h5><i class="fas fa-images me-2"></i>Imágenes adicionales</h5>
+                    <div class="imagenes-adicionales">
+                        <?php foreach ($imagenes_adicionales as $imagen_adicional): ?>
+                            <div class="imagen-adicional-card">
+                                <img src="../../uploads/productos/<?= htmlspecialchars($imagen_adicional['imagen']) ?>" alt="Imagen adicional">
+                                <form method="POST" style="margin-top:0.5rem;">
+                                    <input type="hidden" name="eliminar_imagen_id" value="<?= $imagen_adicional['id'] ?>">
+                                    <button type="submit" class="btn btn-sm btn-danger w-100">Eliminar</button>
+                                </form>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <div class="card-section">
+                    <label class="form-label">Agregar más imágenes</label>
+                    <input
+                        type="file"
+                        name="imagenes_adicionales[]"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                        class="form-control"
+                    >
+                    <small class="text-muted">Selecciona varias imágenes para la galería del producto.</small>
                 </div>
 
                 <!-- Acciones rápidas -->

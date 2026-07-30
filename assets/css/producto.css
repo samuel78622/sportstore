@@ -1,0 +1,33 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.carousel-producto-img {
+    max-height: 420px;
+    width: auto;
+    object-fit: contain;
+}
+
+#productoCarousel {
+    max-width: 100%;
+}
+
+#productoStock span {
+    display: inline-block;
+}
+
+@media (max-width: 767px) {
+    .carousel-producto-img {
+        max-height: 320px;
+    }
+}
+
+#productoCarousel .carousel-control-prev-icon,
+#productoCarousel .carousel-control-next-icon {
+    filter: invert(1);
+}
+
+

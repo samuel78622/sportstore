@@ -104,6 +104,65 @@ function obtenerColoresPorTalla($producto_id, $talla) {
 }
 
 // ============================================
+// OBTENER IMAGENES ADICIONALES DE PRODUCTO
+// ============================================
+function obtenerImagenesProducto($producto_id) {
+    $db = conectar();
+
+    $stmt = $db->prepare("
+        SELECT * FROM imagenes_productos
+        WHERE producto_id = ? AND activo = 1
+        ORDER BY orden ASC, id ASC
+    ");
+    $stmt->execute([$producto_id]);
+    return $stmt->fetchAll();
+}
+
+// ============================================
+// AGREGAR IMAGEN ADICIONAL A PRODUCTO
+// ============================================
+function agregarImagenProducto($producto_id, $imagen, $orden = null) {
+    $db = conectar();
+
+    $stmt = $db->prepare("
+        INSERT INTO imagenes_productos (producto_id, imagen, orden)
+        VALUES (?, ?, ?)
+    ");
+    $stmt->execute([$producto_id, $imagen, $orden ?? 0]);
+
+    return [
+        'exito'   => true,
+        'mensaje' => 'Imagen agregada correctamente'
+    ];
+}
+
+// ============================================
+// ELIMINAR IMAGEN DE PRODUCTO
+// ============================================
+function eliminarImagenProducto($imagen_id) {
+    $db = conectar();
+
+    $stmt = $db->prepare("SELECT imagen FROM imagenes_productos WHERE id = ?");
+    $stmt->execute([$imagen_id]);
+    $imagen = $stmt->fetchColumn();
+
+    if ($imagen) {
+        $ruta = __DIR__ . '/../uploads/productos/' . $imagen;
+        if (file_exists($ruta)) {
+            unlink($ruta);
+        }
+    }
+
+    $stmt = $db->prepare("DELETE FROM imagenes_productos WHERE id = ?");
+    $stmt->execute([$imagen_id]);
+
+    return [
+        'exito'   => true,
+        'mensaje' => 'Imagen eliminada correctamente'
+    ];
+}
+
+// ============================================
 // CREAR PRODUCTO (ADMIN)
 // ============================================
 function crearProducto($nombre, $descripcion, $categoria_id, $coleccion, $imagen = null) {

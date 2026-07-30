@@ -1,0 +1,64 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* BOTÓN PERFIL */
+.btn-dark {
+  background: #111;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 25px;
+  border-radius: 8px;
+  border: none;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.btn-dark:hover {
+  background: #e44d26;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+
+/* WISHLIST */
+.wishlist-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.wishlist-table th {
+  background: #111;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.wishlist-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.wishlist-table tr:hover {
+  background: #f9f9f9;
+}
+
+.wishlist-table a {
+  color: #e44d26;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.wishlist-table a:hover {
+  text-decoration: underline;
+}

@@ -20,6 +20,7 @@ class ComposerStaticInit37e5a3d428fecb3123f7f806176c5ec2
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'M' =>
         array (
@@ -46,6 +47,10 @@ class ComposerStaticInit37e5a3d428fecb3123f7f806176c5ec2
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
+        'PHPMailer\\PHPMailer\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
         'Mpdf\\PsrLogAwareTrait\\' =>
         array (
             0 => __DIR__ . '/..' . '/mpdf/psr-log-aware-trait/src',
@@ -57,7 +62,6 @@ class ComposerStaticInit37e5a3d428fecb3123f7f806176c5ec2
         'Mpdf\\' =>
         array (
             0 => __DIR__ . '/..' . '/mpdf/mpdf/src',
-            1 => __DIR__ . '/..' . '/mpdf/mpdf/src',
         ),
         'DeepCopy\\' =>
         array (

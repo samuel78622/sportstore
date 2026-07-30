@@ -70,6 +70,9 @@ $total_gastado = array_sum(array_column(
             <a href="../pedidos/index.php" class="menu-item">
                 <i class="fas fa-bag-shopping"></i> Pedidos
             </a>
+              <a href="../facturas/index.php" class="menu-item">
+                <i class="fas fa-file-invoice"></i> Facturas
+            </a>
             <a href="../cupones/index.php" class="menu-item">
                 <i class="fas fa-tag"></i> Cupones
             </a>

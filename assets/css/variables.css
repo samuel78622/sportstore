@@ -1,0 +1,48 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+:root {
+    --bg: #f5f5f5;
+
+    --sidebar-bg: #111;
+    --sidebar-border: #222;
+    --sidebar-contrast: #1b1b1b;
+
+    --brand: #e44d26;
+
+    --text: #111;
+    --text-muted: #666;
+
+    --muted: #777;
+    --muted-2: #999;
+    --muted-3: #b0b0b0;
+    --muted-4: #888;
+
+    --white: #fff;
+
+    --panel-bg: #ffffff;
+    --border: #e5e5e5;
+
+    --card-shadow: 0 5px 20px rgba(0,0,0,0.08);
+
+    --warning: #f59e0b;
+    --warning-dark: #92400e;
+
+    --success: #10b981;
+    --success-dark: #065f46;
+
+    --info: #3b82f6;
+
+    --danger: #ef4444;
+    --danger-dark: #991b1b;
+
+    --bg-warning: #fef3c7;
+    --bg-success: #d1fae5;
+    --bg-info: #dbeafe;
+    --bg-info-light: #eff6ff;
+    --bg-danger: #fee2e2;
+}

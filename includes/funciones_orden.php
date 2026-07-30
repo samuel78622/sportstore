@@ -396,6 +396,50 @@ function obtenerOrden($orden_id)
 }
 
 // ============================================
+// CAMBIAR ESTADO DE ORDEN
+// ============================================
+function cambiarEstadoOrden($orden_id, $nuevo_estado)
+{
+    $estados_validos = [
+        'pendiente',
+        'empacado',
+        'enviado',
+        'entregado',
+        'cancelado'
+    ];
+
+    if (!in_array($nuevo_estado, $estados_validos, true)) {
+        return [
+            'exito' => false,
+            'mensaje' => 'Estado inválido.'
+        ];
+    }
+
+    $db = conectar();
+
+    $stmt = $db->prepare(
+        "UPDATE ordenes SET estado = ? WHERE id = ?"
+    );
+
+    $stmt->execute([
+        $nuevo_estado,
+        $orden_id
+    ]);
+
+    if ($stmt->rowCount() === 0) {
+        return [
+            'exito' => false,
+            'mensaje' => 'No se encontró la orden o el estado ya es el mismo.'
+        ];
+    }
+
+    return [
+        'exito' => true,
+        'mensaje' => 'Estado actualizado correctamente.'
+    ];
+}
+
+// ============================================
 // ITEMS ORDEN
 // ============================================
 if (!function_exists('obtenerItemsOrden')) {

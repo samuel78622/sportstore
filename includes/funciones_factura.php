@@ -74,6 +74,12 @@ function generarHTMLFactura($orden_id) {
     $items   = obtenerItemsOrden($orden_id);
 
     if (!$factura) {
+        // Si no hay factura registrada, generar una nueva para esta orden
+        generarFactura($orden_id);
+        $factura = obtenerFacturaPorOrden($orden_id);
+    }
+
+    if (!$factura) {
         return '<p>Factura no encontrada</p>';
     }
 
@@ -153,7 +159,11 @@ function generarHTMLFactura($orden_id) {
 
             /* Botones solo para pantalla */
             .acciones { text-align: center; margin: 20px 0; }
-            .btn-imprimir { background: #111; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+            .btn-imprimir, .btn-comprar, .btn-pedidos { display: inline-block; margin: 0 8px; padding: 10px 25px; border-radius: 5px; font-size: 14px; cursor: pointer; text-decoration: none; }
+            .btn-imprimir { background: #111; color: white; border: none; }
+            .btn-comprar { background: #0d6efd; color: white; border: none; }
+            .btn-pedidos { background: #20c997; color: white; border: none; }
+            .btn-imprimir:hover, .btn-comprar:hover, .btn-pedidos:hover { opacity: 0.9; }
             @media print { .acciones { display: none; } }
         </style>
     </head>
@@ -163,6 +173,8 @@ function generarHTMLFactura($orden_id) {
         <!-- Botón imprimir -->
         <div class='acciones'>
             <button class='btn-imprimir' onclick='window.print()'>🖨️ Imprimir Factura</button>
+            <a href='catalogo.php' class='btn-comprar'>🛍️ Seguir comprando</a>
+            <a href='cliente/mis_pedidos.php' class='btn-pedidos'>📦 Ver mis pedidos</a>
         </div>
 
         <!-- Encabezado -->
@@ -237,6 +249,47 @@ function generarHTMLFactura($orden_id) {
 }
 
 // ============================================
+// LISTAR FACTURAS FILTRADAS POR FECHA Y HORA
+// ============================================
+function listarFacturasFiltradasPorFecha($dia = null, $mes = null, $ano = null, $hora = null) {
+    $db = conectar();
+
+    $where = [];
+    $params = [];
+
+    if ($dia && $mes && $ano) {
+        $where[] = "DATE(f.fecha) = ?";
+        $params[] = "$ano-$mes-$dia";
+    } elseif ($mes && $ano) {
+        $where[] = "MONTH(f.fecha) = ? AND YEAR(f.fecha) = ?";
+        $params[] = $mes;
+        $params[] = $ano;
+    } elseif ($ano) {
+        $where[] = "YEAR(f.fecha) = ?";
+        $params[] = $ano;
+    }
+
+    if ($hora !== null && $dia && $mes && $ano) {
+        $where[] = "HOUR(f.fecha) = ?";
+        $params[] = $hora;
+    }
+
+    $where_clause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+
+    $stmt = $db->prepare("
+        SELECT f.*, u.nombre AS cliente, o.total, o.estado
+        FROM facturas f
+        JOIN ordenes o ON f.orden_id = o.id
+        JOIN usuarios_roles u ON o.usuario_id = u.id
+        {$where_clause}
+        ORDER BY f.fecha DESC
+    ");
+
+    $stmt->execute($params);
+    return $stmt->fetchAll();
+}
+
+// ============================================
 // ESTADÍSTICAS DE FACTURACIÓN (ADMIN)
 // ============================================
 function estadisticasFacturacion() {
@@ -297,6 +350,11 @@ function generarPDFFactura($orden_id, $descarga = true) {
         // Obtener datos de la factura
         $factura = obtenerFacturaPorOrden($orden_id);
         $items   = obtenerItemsOrden($orden_id);
+
+        if (!$factura) {
+            generarFactura($orden_id);
+            $factura = obtenerFacturaPorOrden($orden_id);
+        }
 
         if (!$factura) {
             return [
@@ -593,5 +651,89 @@ function generarPDFFactura($orden_id, $descarga = true) {
             'exito'   => false,
             'mensaje' => 'Error al generar PDF: ' . $e->getMessage()
         ];
+    }
+}
+
+// ============================================
+// ENVIAR FACTURA POR CORREO
+// ============================================
+function enviarFacturaPorCorreo($orden_id)
+{
+    $orden = obtenerOrden($orden_id);
+    if (!$orden || empty($orden['email'])) {
+        return false;
+    }
+
+    $resultado_pdf = generarPDFFactura($orden_id, false);
+    if (!$resultado_pdf['exito']) {
+        return false;
+    }
+
+    $ruta_pdf = $resultado_pdf['ruta_pdf'];
+    if (!file_exists($ruta_pdf)) {
+        return false;
+    }
+
+    $contenido_pdf = file_get_contents($ruta_pdf);
+    if ($contenido_pdf === false) {
+        return false;
+    }
+
+    $nombre_archivo = basename($ruta_pdf);
+
+    // Cargar PHPMailer si está disponible
+    $autoload = __DIR__ . '/../vendor/autoload.php';
+    if (file_exists($autoload)) {
+        require_once $autoload;
+    }
+
+    if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
+        $manualPath1 = __DIR__ . '/../PHPMailer/src';
+        $manualPath2 = __DIR__ . '/../vendor/phpmailer/phpmailer/src';
+
+        if (is_dir($manualPath1)) {
+            require_once $manualPath1 . '/Exception.php';
+            require_once $manualPath1 . '/PHPMailer.php';
+            require_once $manualPath1 . '/SMTP.php';
+        } elseif (is_dir($manualPath2)) {
+            require_once $manualPath2 . '/Exception.php';
+            require_once $manualPath2 . '/PHPMailer.php';
+            require_once $manualPath2 . '/SMTP.php';
+        } else {
+            error_log('PHPMailer no está disponible en el proyecto. Instala phpmailer/phpmailer o agrega la carpeta PHPMailer/src.');
+            return false;
+        }
+    }
+
+    try {
+        $mailerClass = implode('\\', ['PHPMailer', 'PHPMailer', 'PHPMailer']);
+        $mail = new $mailerClass(true);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'ecommerssport@gmail.com';
+        $mail->Password   = 'scyv msju ukim nnez';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+        $mail->CharSet    = 'UTF-8';
+
+        $mail->setFrom('ecommerssport@gmail.com', 'SportStore');
+        $mail->addAddress($orden['email'], $orden['cliente']);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Factura SportStore: ' . $orden['numero_factura'];
+        $mail->Body    = '<p>Hola ' . htmlspecialchars($orden['cliente']) . ',</p>' .
+                         '<p>Gracias por tu compra en <strong>SportStore</strong>. Adjuntamos la factura de tu orden <strong>' . htmlspecialchars($orden['numero_factura']) . '</strong>.</p>' .
+                         '<p>Saludos,<br>SportStore</p>';
+        $mail->AltBody = 'Hola ' . $orden['cliente'] . "\n\n" .
+                         'Gracias por tu compra en SportStore. Adjuntamos la factura de tu orden ' . $orden['numero_factura'] . ".\n\n" .
+                         'Saludos, SportStore';
+
+        $mail->addStringAttachment($contenido_pdf, $nombre_archivo, 'base64', 'application/pdf');
+
+        return $mail->send();
+    } catch (\Exception $e) {
+        error_log('Error PHPMailer: ' . $e->getMessage());
+        return false;
     }
 }

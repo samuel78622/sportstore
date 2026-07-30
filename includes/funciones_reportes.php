@@ -9,7 +9,8 @@ require_once 'conexion.php';
 // ============================================
 // REPORTE DE VENTAS POR DÍA
 // ============================================
-function ventasPorDia($limite = 30) {
+function ventasPorDia($limite = 30)
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -29,8 +30,9 @@ function ventasPorDia($limite = 30) {
 // ============================================
 // REPORTE DE VENTAS POR MES
 // ============================================
-function ventasPorMes($anio = null) {
-    $db  = conectar();
+function ventasPorMes($anio = null)
+{
+    $db = conectar();
     $anio = $anio ?? date('Y');
 
     $stmt = $db->prepare("
@@ -51,7 +53,8 @@ function ventasPorMes($anio = null) {
 // ============================================
 // REPORTE DE VENTAS POR CATEGORÍA
 // ============================================
-function ventasPorCategoria() {
+function ventasPorCategoria()
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -74,7 +77,8 @@ function ventasPorCategoria() {
 // ============================================
 // REPORTE DE PRODUCTOS MÁS VENDIDOS
 // ============================================
-function reporteProductosMasVendidos($limite = 10) {
+function reporteProductosMasVendidos($limite = 10)
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -100,7 +104,8 @@ function reporteProductosMasVendidos($limite = 10) {
 // ============================================
 // REPORTE DE TALLAS MÁS VENDIDAS
 // ============================================
-function tallasMasVendidas() {
+function tallasMasVendidas()
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -120,7 +125,8 @@ function tallasMasVendidas() {
 // ============================================
 // REPORTE DE CLIENTES MÁS ACTIVOS
 // ============================================
-function clientesMasActivos($limite = 10) {
+function clientesMasActivos($limite = 10)
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -141,7 +147,8 @@ function clientesMasActivos($limite = 10) {
 // ============================================
 // REPORTE DE ÓRDENES POR ESTADO
 // ============================================
-function ordenesPorEstado() {
+function ordenesPorEstado()
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -159,7 +166,8 @@ function ordenesPorEstado() {
 // ============================================
 // REPORTE DE STOCK CRÍTICO
 // ============================================
-function reporteStockCritico($limite = 5) {
+function reporteStockCritico($limite = 5)
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -183,7 +191,8 @@ function reporteStockCritico($limite = 5) {
 // ============================================
 // REPORTE DE INGRESOS VS META MENSUAL
 // ============================================
-function ingresosMensuales($meses = 6) {
+function ingresosMensuales($meses = 6)
+{
     $db = conectar();
 
     $stmt = $db->prepare("
@@ -205,7 +214,8 @@ function ingresosMensuales($meses = 6) {
 // ============================================
 // REPORTE GENERAL PARA DASHBOARD
 // ============================================
-function reporteGeneral() {
+function reporteGeneral()
+{
     $db = conectar();
 
     // Ventas de hoy
@@ -246,9 +256,9 @@ function reporteGeneral() {
     }
 
     return [
-        'hoy'      => $hoy,
-        'ayer'     => $ayer,
-        'mes'      => $mes,
+        'hoy' => $hoy,
+        'ayer' => $ayer,
+        'mes' => $mes,
         'variacion' => round($variacion, 2)
     ];
 }
@@ -256,7 +266,8 @@ function reporteGeneral() {
 // ============================================
 // EXPORTAR REPORTE A CSV
 // ============================================
-function exportarCSV($datos, $nombre_archivo, $encabezados) {
+function exportarCSV($datos, $nombre_archivo, $encabezados)
+{
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="' . $nombre_archivo . '.csv"');
 
@@ -275,4 +286,50 @@ function exportarCSV($datos, $nombre_archivo, $encabezados) {
 
     fclose($output);
     exit();
+}
+
+// ============================================
+// ESTADÍSTICAS PARA DASHBOARD ADMIN
+// ============================================
+function estadisticasDashboard()
+{
+    $db = conectar();
+
+    // Órdenes del día
+    $stmt = $db->prepare("
+        SELECT COUNT(*) AS total
+        FROM ordenes
+        WHERE DATE(fecha) = CURDATE()
+        AND estado != 'cancelado'
+    ");
+    $stmt->execute();
+    $ordenes_hoy = $stmt->fetch()['total'] ?? 0;
+
+    // Ingresos del mes
+    $stmt = $db->prepare("
+        SELECT SUM(total) AS total
+        FROM ordenes
+        WHERE MONTH(fecha) = MONTH(NOW())
+        AND YEAR(fecha) = YEAR(NOW())
+        AND estado != 'cancelado'
+    ");
+    $stmt->execute();
+    $ingresos_mes = $stmt->fetch()['total'] ?? 0;
+
+    // Total de clientes
+    $stmt = $db->prepare("SELECT COUNT(*) AS total FROM usuarios_roles WHERE rol = 'cliente'");
+    $stmt->execute();
+    $total_clientes = $stmt->fetch()['total'] ?? 0;
+
+    // Productos con stock bajo (menos de 5 unidades)
+    $stmt = $db->prepare("SELECT COUNT(*) AS total FROM variantes WHERE stock < 5 AND activo = 1");
+    $stmt->execute();
+    $stock_bajo = $stmt->fetch()['total'] ?? 0;
+
+    return [
+        'ordenes_hoy' => $ordenes_hoy,
+        'ingresos_mes' => $ingresos_mes,
+        'total_clientes' => $total_clientes,
+        'stock_bajo' => $stock_bajo
+    ];
 }

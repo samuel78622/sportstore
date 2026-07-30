@@ -5,6 +5,7 @@ require_once "includes/auth.php";
 require_once "includes/conexion.php";
 require_once "includes/funciones_carrito.php";
 require_once "includes/funciones_orden.php";
+require_once "includes/funciones_factura.php";
 require_once "includes/funciones_producto.php";
 
 // ============================================
@@ -40,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $mensaje = 'Por favor ingresa una dirección de envío';
         $tipo_mensaje = 'danger';
-
     } else {
 
         // Completar compra
@@ -48,14 +48,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (isset($resultado['exito']) && $resultado['exito']) {
 
+            // Enviar factura al correo del cliente
+            if (!enviarFacturaPorCorreo($resultado['orden_id'])) {
+                error_log('No se pudo enviar la factura por correo para la orden: ' . $resultado['orden_id']);
+            }
+
             header("Location: confirmacion.php?id_pedido=" . $resultado['orden_id']);
             exit();
-
         } else {
 
             $mensaje = $resultado['mensaje'] ?? 'Error al procesar la compra';
             $tipo_mensaje = 'danger';
-
         }
     }
 }
@@ -75,7 +78,6 @@ foreach ($carrito as $item) {
     ) {
 
         $subtotal += $item['precio'] * $item['cantidad'];
-
     }
 }
 
@@ -108,339 +110,298 @@ if ($total < 0) {
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            background: #f5f5f5;
-        }
-
-        .checkout-container {
-            max-width: 1100px;
-            margin: 40px auto;
-        }
-
-        .resumen-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,.08);
-        }
-
-        .item-carrito {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .item-carrito:last-child {
-            border-bottom: none;
-        }
-
-        .totales {
-            background: #111;
-            color: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            position: sticky;
-            top: 20px;
-        }
-
-        .fila-total {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        .linea-separadora {
-            border-bottom: 1px solid rgba(255,255,255,.3);
-            margin: 15px 0;
-        }
-
-        textarea {
-            resize: none;
-        }
-    </style>
+    <!-- Estilos -->
+    <link rel="stylesheet" href="assets/css/checkout.css">
+    <link rel="stylesheet" href="incluides/header_public.php">
+    <link rel="stylesheet" href="incluides/footer_public.php">
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
 
-        <a class="navbar-brand" href="index.php">
-            <i class="fas fa-bolt"></i>
-            <strong>SPORT</strong>
-            <span style="color:#ff6b6b;">STORE</span>
-        </a>
+            <a class="navbar-brand" href="index.php">
+                <i class="fas fa-bolt"></i>
+                <strong>SPORT</strong>
+                <span style="color:#ff6b6b;">STORE</span>
+            </a>
 
-        <button class="navbar-toggler"
+            <button class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#navbarNav">
 
-            <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
 
-        </button>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
 
-            <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto">
 
-                <li class="nav-item">
-                    <a class="nav-link" href="catalogo.php">
-                        <i class="fas fa-store"></i>
-                        Catálogo
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php">
+                            <i class="fas fa-store"></i>
+                            Inicio
+                        </a>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="carrito.php">
-                        <i class="fas fa-shopping-cart"></i>
-                        Carrito
-                    </a>
-                </li>
+                    </li>
 
-                <li class="nav-item">
-                    <span class="nav-link text-light">
-                        <i class="fas fa-user"></i>
-                        <?= htmlspecialchars($usuario['nombre'] ?? 'Usuario') ?>
-                    </span>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="catalogo.php">
+                            <i class="fas fa-store"></i>
+                            Catálogo
+                        </a>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Salir
-                    </a>
-                </li>
+                    </li>
 
-            </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="carrito.php">
+                            <i class="fas fa-shopping-cart"></i>
+                            Carrito
+                        </a>
+                    </li>
 
+                    <li class="nav-item">
+                        <span class="nav-link text-light">
+                            <i class="fas fa-user"></i>
+                            <?= htmlspecialchars($usuario['nombre'] ?? 'Usuario') ?>
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Salir
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<!-- CONTENIDO -->
-<div class="container checkout-container">
+    <!-- CONTENIDO -->
+    <div class="container checkout-container">
 
-    <h1 class="mb-4">
-        <i class="fas fa-credit-card"></i>
-        Finalizar Compra
-    </h1>
+        <h1 class="mb-4">
+            <i class="fas fa-credit-card"></i>
+            Finalizar Compra
+        </h1>
 
-    <!-- MENSAJES -->
-    <?php if (!empty($mensaje)): ?>
+        <!-- MENSAJES -->
+        <?php if (!empty($mensaje)): ?>
 
-        <div class="alert alert-<?= $tipo_mensaje ?> alert-dismissible fade show">
+            <div class="alert alert-<?= $tipo_mensaje ?> alert-dismissible fade show">
 
-            <?= htmlspecialchars($mensaje) ?>
+                <?= htmlspecialchars($mensaje) ?>
 
-            <button type="button"
+                <button type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"></button>
 
-        </div>
+            </div>
 
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <div class="row">
+        <div class="row">
 
-        <!-- RESUMEN -->
-        <div class="col-lg-8">
+            <!-- RESUMEN -->
+            <div class="col-lg-8">
 
-            <div class="resumen-card">
+                <div class="resumen-card">
 
-                <h3 class="mb-4">
-                    <i class="fas fa-list"></i>
-                    Resumen del Pedido
-                </h3>
+                    <h3 class="mb-4">
+                        <i class="fas fa-list"></i>
+                        Resumen del Pedido
+                    </h3>
 
-                <?php foreach ($carrito as $item): ?>
+                    <?php foreach ($carrito as $item): ?>
 
-                    <?php if (is_array($item)): ?>
+                        <?php if (is_array($item)): ?>
 
-                        <div class="item-carrito">
-
-                            <div>
-
-                                <strong>
-                                    <?= htmlspecialchars($item['nombre'] ?? 'Producto') ?>
-                                </strong>
-
-                                <br>
-
-                                <small class="text-muted">
-
-                                    Talla:
-                                    <?= htmlspecialchars($item['talla'] ?? 'N/A') ?>
-
-                                    |
-
-                                    Color:
-                                    <?= htmlspecialchars($item['color'] ?? 'N/A') ?>
-
-                                </small>
-
-                            </div>
-
-                            <div class="text-end">
+                            <div class="item-carrito">
 
                                 <div>
-                                    Cantidad:
+
                                     <strong>
-                                        <?= intval($item['cantidad'] ?? 0) ?>
+                                        <?= htmlspecialchars($item['nombre'] ?? 'Producto') ?>
                                     </strong>
+
+                                    <br>
+
+                                    <small class="text-muted">
+
+                                        Talla:
+                                        <?= htmlspecialchars($item['talla'] ?? 'N/A') ?>
+
+                                        |
+
+                                        Color:
+                                        <?= htmlspecialchars($item['color'] ?? 'N/A') ?>
+
+                                    </small>
+
                                 </div>
 
-                                <div>
+                                <div class="text-end">
 
-                                    $
-                                    <?= number_format(
-                                        ($item['precio'] ?? 0) *
-                                        ($item['cantidad'] ?? 0),
-                                        2
-                                    ) ?>
+                                    <div>
+                                        Cantidad:
+                                        <strong>
+                                            <?= intval($item['cantidad'] ?? 0) ?>
+                                        </strong>
+                                    </div>
+
+                                    <div>
+
+                                        $
+                                        <?= number_format(
+                                            ($item['precio'] ?? 0) *
+                                                ($item['cantidad'] ?? 0),
+                                            2
+                                        ) ?>
+
+                                    </div>
 
                                 </div>
 
                             </div>
+
+                        <?php endif; ?>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+                <!-- DIRECCIÓN -->
+                <div class="resumen-card">
+
+                    <h3 class="mb-4">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Dirección de Envío
+                    </h3>
+
+                    <form method="POST">
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Dirección Completa
+                            </label>
+
+                            <textarea
+                                name="direccion_envio"
+                                class="form-control"
+                                rows="4"
+                                required
+                                placeholder="Ej: Carrera 10 #20-30 Bogotá"></textarea>
+
+                        </div>
+
+                        <button type="submit"
+                            class="btn btn-success btn-lg w-100">
+
+                            <i class="fas fa-check-circle"></i>
+                            Completar Compra
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <!-- TOTALES -->
+            <div class="col-lg-4">
+
+                <div class="totales">
+
+                    <h3 class="mb-4">
+                        <i class="fas fa-calculator"></i>
+                        Totales
+                    </h3>
+
+                    <div class="fila-total">
+
+                        <span>Subtotal:</span>
+
+                        <span>
+                            $<?= number_format($subtotal, 2) ?>
+                        </span>
+
+                    </div>
+
+                    <?php if ($descuento > 0): ?>
+
+                        <div class="fila-total text-success">
+
+                            <span>Descuento:</span>
+
+                            <span>
+                                -$<?= number_format($descuento, 2) ?>
+                            </span>
 
                         </div>
 
                     <?php endif; ?>
 
-                <?php endforeach; ?>
+                    <div class="linea-separadora"></div>
 
-            </div>
+                    <div class="fila-total">
 
-            <!-- DIRECCIÓN -->
-            <div class="resumen-card">
+                        <strong>TOTAL:</strong>
 
-                <h3 class="mb-4">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Dirección de Envío
-                </h3>
-
-                <form method="POST">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Dirección Completa
-                        </label>
-
-                        <textarea
-                            name="direccion_envio"
-                            class="form-control"
-                            rows="4"
-                            required
-                            placeholder="Ej: Carrera 10 #20-30 Bogotá"></textarea>
+                        <strong style="color:#ffc107;">
+                            $<?= number_format($total, 2) ?>
+                        </strong>
 
                     </div>
 
-                    <button type="submit"
-                            class="btn btn-success btn-lg w-100">
+                    <?php if (isset($_SESSION['cupon'])): ?>
 
-                        <i class="fas fa-check-circle"></i>
-                        Completar Compra
+                        <div class="mt-3 p-3 rounded"
+                            style="background: rgba(255,255,255,.1);">
 
-                    </button>
+                            <small>
 
-                </form>
+                                <i class="fas fa-ticket-alt"></i>
 
-            </div>
+                                Cupón:
+                                <strong>
+                                    <?= htmlspecialchars($_SESSION['cupon']['codigo']) ?>
+                                </strong>
 
-        </div>
+                            </small>
 
-        <!-- TOTALES -->
-        <div class="col-lg-4">
+                        </div>
 
-            <div class="totales">
-
-                <h3 class="mb-4">
-                    <i class="fas fa-calculator"></i>
-                    Totales
-                </h3>
-
-                <div class="fila-total">
-
-                    <span>Subtotal:</span>
-
-                    <span>
-                        $<?= number_format($subtotal, 2) ?>
-                    </span>
+                    <?php endif; ?>
 
                 </div>
 
-                <?php if ($descuento > 0): ?>
+                <!-- VOLVER -->
+                <a href="carrito.php"
+                    class="btn btn-dark w-100 mt-3">
 
-                    <div class="fila-total text-success">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver al Carrito
 
-                        <span>Descuento:</span>
-
-                        <span>
-                            -$<?= number_format($descuento, 2) ?>
-                        </span>
-
-                    </div>
-
-                <?php endif; ?>
-
-                <div class="linea-separadora"></div>
-
-                <div class="fila-total">
-
-                    <strong>TOTAL:</strong>
-
-                    <strong style="color:#ffc107;">
-                        $<?= number_format($total, 2) ?>
-                    </strong>
-
-                </div>
-
-                <?php if (isset($_SESSION['cupon'])): ?>
-
-                    <div class="mt-3 p-3 rounded"
-                         style="background: rgba(255,255,255,.1);">
-
-                        <small>
-
-                            <i class="fas fa-ticket-alt"></i>
-
-                            Cupón:
-                            <strong>
-                                <?= htmlspecialchars($_SESSION['cupon']['codigo']) ?>
-                            </strong>
-
-                        </small>
-
-                    </div>
-
-                <?php endif; ?>
+                </a>
 
             </div>
-
-            <!-- VOLVER -->
-            <a href="carrito.php"
-               class="btn btn-dark w-100 mt-3">
-
-                <i class="fas fa-arrow-left"></i>
-                Volver al Carrito
-
-            </a>
 
         </div>
 
     </div>
 
-</div>
-
-<!-- Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

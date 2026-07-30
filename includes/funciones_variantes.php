@@ -23,6 +23,66 @@ function obtenerVariante($id) {
 }
 
 // ============================================
+// OBTENER VARIANTE POR TALLA Y COLOR
+// ============================================
+function obtenerVariantePorTallaColor($producto_id, $talla, $color) {
+    $db = conectar();
+
+    $stmt = $db->prepare("
+        SELECT * FROM variantes
+        WHERE producto_id = ? AND talla = ? AND color = ? AND activo = 1
+    ");
+    $stmt->execute([$producto_id, $talla, $color]);
+    return $stmt->fetch();
+}
+
+// ============================================
+// CREAR O ACTUALIZAR VARIANTE MASIVA
+// ============================================
+function crearOActualizarVariante($producto_id, $talla, $color, $precio, $stock) {
+    $db = conectar();
+
+    if ($precio <= 0) {
+        return [
+            'exito'   => false,
+            'mensaje' => 'El precio debe ser mayor a 0'
+        ];
+    }
+
+    if ($stock < 0) {
+        return [
+            'exito'   => false,
+            'mensaje' => 'El stock no puede ser negativo'
+        ];
+    }
+
+    $variante_existente = obtenerVariantePorTallaColor($producto_id, $talla, $color);
+
+    if ($variante_existente) {
+        $nuevo_stock = $variante_existente['stock'] + $stock;
+        $stmt = $db->prepare("UPDATE variantes SET precio = ?, stock = ? WHERE id = ?");
+        $stmt->execute([$precio, $nuevo_stock, $variante_existente['id']]);
+
+        if ($stock !== 0) {
+            require_once 'funciones_producto.php';
+            registrarMovimiento(
+                $variante_existente['id'],
+                $stock > 0 ? 'entrada' : 'salida',
+                abs($stock),
+                'Ajuste por variante masiva'
+            );
+        }
+
+        return [
+            'exito'   => true,
+            'mensaje' => "Variante actualizada: talla {$talla} ({$stock} uds agregadas)"
+        ];
+    }
+
+    return crearVariante($producto_id, $talla, $color, $precio, $stock);
+}
+
+// ============================================
 // OBTENER VARIANTES DE UN PRODUCTO
 // ============================================
 function obtenerVariantesPorProducto($producto_id) {

@@ -29,18 +29,62 @@ if (isset($_GET['nuevo'])) {
 
 // ── CREAR VARIANTE ──
 if (isset($_POST['accion']) && $_POST['accion'] === 'crear') {
-    $resultado = crearVariante(
-        $id,
-        trim($_POST['talla']),
-        trim($_POST['color']),
-        $_POST['precio'],
-        $_POST['stock']
-    );
+    $color = trim($_POST['color']);
+    $precio = $_POST['precio'];
+    $tallas = $_POST['talla'] ?? [];
+    $stocks = $_POST['stock'] ?? [];
 
-    if ($resultado['exito']) {
-        $success = $resultado['mensaje'];
-    } else {
-        $error = $resultado['mensaje'];
+    if (!is_array($tallas)) {
+        $tallas = [$tallas];
+    }
+    if (!is_array($stocks)) {
+        $stocks = [$stocks];
+    }
+
+    $lineas = [];
+    foreach ($tallas as $index => $talla) {
+        $talla = trim($talla);
+        $stock = isset($stocks[$index]) ? intval($stocks[$index]) : 0;
+        if ($talla === '') {
+            continue;
+        }
+
+        $lineas[] = [
+            'talla' => $talla,
+            'stock' => $stock
+        ];
+    }
+
+    if (empty($color)) {
+        $error = 'El color es obligatorio';
+    } elseif (empty($precio) || !is_numeric($precio) || $precio <= 0) {
+        $error = 'El precio debe ser mayor a 0';
+    } elseif (empty($lineas)) {
+        $error = 'Debes agregar al menos una talla con stock';
+    }
+
+    if (empty($error)) {
+        $mensajes = [];
+        foreach ($lineas as $linea) {
+            $resultado = crearOActualizarVariante(
+                $id,
+                $linea['talla'],
+                $color,
+                floatval($precio),
+                intval($linea['stock'])
+            );
+
+            if (!$resultado['exito']) {
+                $error = $resultado['mensaje'];
+                break;
+            }
+
+            $mensajes[] = $resultado['mensaje'];
+        }
+
+        if (empty($error)) {
+            $success = implode(' | ', $mensajes);
+        }
     }
 }
 
@@ -122,6 +166,9 @@ $tallas_predefinidas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39'
             <div class="menu-label">Ventas</div>
             <a href="../pedidos/index.php" class="menu-item">
                 <i class="fas fa-bag-shopping"></i> Pedidos
+            </a>
+             <a href="../facturas/index.php" class="menu-item">
+                <i class="fas fa-file-invoice"></i> Facturas
             </a>
             <a href="../cupones/index.php" class="menu-item">
                 <i class="fas fa-tag"></i> Cupones
@@ -213,24 +260,6 @@ $tallas_predefinidas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39'
                         <input type="hidden" name="accion" value="crear">
 
                         <div class="mb-3">
-                            <label class="form-label">Talla <span class="text-danger">*</span></label>
-                            <select name="talla" class="form-select" required>
-                                <option value="">Selecciona talla</option>
-                                <optgroup label="Ropa">
-                                    <?php foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $t): ?>
-                                        <option value="<?= $t ?>"><?= $t ?></option>
-                                    <?php endforeach; ?>
-                                </optgroup>
-                                <optgroup label="Calzado">
-                                    <?php foreach (['36', '37', '38', '39', '40', '41', '42', '43', '44', '45'] as $t): ?>
-                                        <option value="<?= $t ?>"><?= $t ?></option>
-                                    <?php endforeach; ?>
-                                </optgroup>
-                                <option value="UNICA">Talla única</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
                             <label class="form-label">Color <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="text" name="color" id="colorNombre" class="form-control"
@@ -252,12 +281,42 @@ $tallas_predefinidas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39'
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Stock inicial <span class="text-danger">*</span></label>
-                            <input type="number" name="stock" class="form-control" placeholder="0" min="0" required>
+                            <label class="form-label">Stock por talla <span class="text-danger">*</span></label>
+                            <div id="tallasStockContainer">
+                                <div class="talla-stock-row row g-2 align-items-end mb-2">
+                                    <div class="col-6">
+                                        <select name="talla[]" class="form-select" required>
+                                            <option value="">Selecciona talla</option>
+                                            <optgroup label="Ropa">
+                                                <?php foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $t): ?>
+                                                    <option value="<?= $t ?>"><?= $t ?></option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                            <optgroup label="Calzado">
+                                                <?php foreach (['36', '37', '38', '39', '40', '41', '42', '43', '44', '45'] as $t): ?>
+                                                    <option value="<?= $t ?>"><?= $t ?></option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                            <option value="UNICA">Talla única</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" name="stock[]" class="form-control" placeholder="Stock" min="0" required>
+                                    </div>
+                                    <div class="col-2">
+                                        <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="eliminarFila(this)">-</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="agregarFila()">
+                                <i class="fas fa-plus me-2"></i>Agregar talla
+                            </button>
+                            <small class="text-muted d-block mt-2">Agrega varias tallas con stock en un solo paso.</small>
                         </div>
 
                         <button type="submit" class="btn-guardar w-100">
-                            <i class="fas fa-plus me-2"></i>AGREGAR VARIANTE
+                            <i class="fas fa-plus me-2"></i>AGREGAR VARIANTES
                         </button>
                     </form>
                 </div>
@@ -335,7 +394,7 @@ $tallas_predefinidas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39'
                                                 <i class="fas fa-pen"></i> Editar
                                             </button>
 
-                                            href="variantes.php?id=<?= $id ?>&eliminar_variante=<?= $v['id'] ?>"
+                                            <a href="variantes.php?id=<?= $id ?>&eliminar_variante=<?= $v['id'] ?>"
                                             class="btn-accion btn-eliminar"
                                             onclick="return confirm('¿Eliminar esta variante?')"
                                             >
@@ -423,6 +482,59 @@ $tallas_predefinidas = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39'
             document.getElementById('edit_stock').value = stock;
 
             new bootstrap.Modal(document.getElementById('modalEditar')).show();
+        }
+
+        function agregarFila() {
+            const contenedor = document.getElementById('tallasStockContainer');
+            const fila = document.createElement('div');
+            fila.className = 'talla-stock-row row g-2 align-items-end mb-2';
+            fila.innerHTML = `
+                <div class="col-6">
+                    <select name="talla[]" class="form-select" required>
+                        <option value="">Selecciona talla</option>
+                        <optgroup label="Ropa">
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </optgroup>
+                        <optgroup label="Calzado">
+                            <option value="36">36</option>
+                            <option value="37">37</option>
+                            <option value="38">38</option>
+                            <option value="39">39</option>
+                            <option value="40">40</option>
+                            <option value="41">41</option>
+                            <option value="42">42</option>
+                            <option value="43">43</option>
+                            <option value="44">44</option>
+                            <option value="45">45</option>
+                        </optgroup>
+                        <option value="UNICA">Talla única</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <input type="number" name="stock[]" class="form-control" placeholder="Stock" min="0" required>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="eliminarFila(this)">-</button>
+                </div>
+            `;
+            contenedor.appendChild(fila);
+        }
+
+        function eliminarFila(button) {
+            const fila = button.closest('.talla-stock-row');
+            if (!fila) return;
+            const contenedor = document.getElementById('tallasStockContainer');
+            if (contenedor.querySelectorAll('.talla-stock-row').length > 1) {
+                fila.remove();
+            } else {
+                fila.querySelector('select[name="talla[]"]').value = '';
+                fila.querySelector('input[name="stock[]"]').value = '';
+            }
         }
     </script>
 </body>

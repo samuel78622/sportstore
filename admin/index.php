@@ -21,7 +21,7 @@ $ordenes = listarOrdenes('pendiente');
     <title>Dashboard — SportStore Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="../assets/css/admin.css" rel="stylesheet">
+    <link href="assets/css/admin.css" rel="stylesheet">
 </head>
 
 <body>
@@ -58,6 +58,9 @@ $ordenes = listarOrdenes('pendiente');
             <div class="menu-label">Ventas</div>
             <a href="pedidos/index.php" class="menu-item">
                 <i class="fas fa-bag-shopping"></i> Pedidos
+            </a>
+            <a href="facturas/index.php" class="menu-item">
+                <i class="fas fa-file-invoice"></i> Facturas
             </a>
             <a href="cupones/index.php" class="menu-item">
                 <i class="fas fa-tag"></i> Cupones

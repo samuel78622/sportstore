@@ -38,8 +38,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             if ($resultado['exito']) {
+                $producto_id = $resultado['producto_id'];
+
+                if (!isset($_FILES['imagenes_adicionales'])) {
+                    $_FILES['imagenes_adicionales'] = ['name' => [], 'type' => [], 'tmp_name' => [], 'error' => [], 'size' => []];
+                }
+
+                foreach ($_FILES['imagenes_adicionales']['name'] as $index => $name) {
+                    if (empty($name)) {
+                        continue;
+                    }
+
+                    $file = [
+                        'name'     => $_FILES['imagenes_adicionales']['name'][$index],
+                        'type'     => $_FILES['imagenes_adicionales']['type'][$index],
+                        'tmp_name' => $_FILES['imagenes_adicionales']['tmp_name'][$index],
+                        'error'    => $_FILES['imagenes_adicionales']['error'][$index],
+                        'size'     => $_FILES['imagenes_adicionales']['size'][$index],
+                    ];
+
+                    $resultado_img = subirImagenProducto($file);
+                    if ($resultado_img['exito']) {
+                        agregarImagenProducto($producto_id, $resultado_img['imagen']);
+                    }
+                }
+
                 // Redirigir a variantes del producto recién creado
-                header("Location: variantes.php?id=" . $resultado['producto_id'] . "&nuevo=1");
+                header("Location: variantes.php?id=" . $producto_id . "&nuevo=1");
                 exit();
             } else {
                 $error = $resultado['mensaje'];
@@ -60,6 +85,7 @@ $categorias = listarCategorias();
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="../assets/css/productos/variantes.css" rel="stylesheet">
     <link href="../assets/css/productos/crear.css" rel="stylesheet">
+    <link href="/assets/css/productos.css" rel="stylesheet">
 
 </head>
 <body>
@@ -97,6 +123,9 @@ $categorias = listarCategorias();
         <a href="../pedidos/index.php" class="menu-item">
             <i class="fas fa-bag-shopping"></i> Pedidos
         </a>
+           <a href="../facturas/index.php" class="menu-item">
+                <i class="fas fa-file-invoice"></i> Facturas
+            </a>
         <a href="../cupones/index.php" class="menu-item">
             <i class="fas fa-tag"></i> Cupones
         </a>
@@ -274,6 +303,18 @@ $categorias = listarCategorias();
                         style="display:none"
                         onchange="previewImagen(this)"
                     >
+
+                    <div class="mt-4">
+                        <label class="form-label">Imágenes adicionales</label>
+                        <input
+                            type="file"
+                            name="imagenes_adicionales[]"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                            class="form-control"
+                        >
+                        <small class="text-muted">Puedes subir varias imágenes adicionales para el producto.</small>
+                    </div>
                 </div>
 
                 <!-- Info adicional -->
